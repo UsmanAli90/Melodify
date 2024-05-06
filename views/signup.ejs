@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./partials/head.ejs')%>
+
+    <body>
+        <%- include('./partials/nav.ejs') %>
+
+            <div class="container">
+                <h1>Sign Up for <span>Melodify</span> </h1>
+                <form id="signupForm">
+                    <input type="text" placeholder="Full Name">
+                    <input type="email" placeholder="Email Address">
+                    <input type="email" placeholder="Confirm Email Address">
+                    <input type="tel" placeholder="Phone Number">
+                    <input type="password" placeholder="Password">
+                    <button type="submit">Sign Up</button>
+                </form>
+            </div>
+
+            <%- include('./partials/footer.ejs')%>
+
+                <script src="script.js"></script>
+    </body>
+
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('./partials/head.ejs')%>
+
+	<body>
+		<%- include('./partials/nav.ejs') %>
+
+			<div class="container">
+				<h1>Welcome to <span>Melodify</span> </h1>
+				<p>
+					Explore curated playlists and diverse genres
+					with ease. Immerse yourself in a world of captivating melodies.</p>
+				<div class="buttons">
+					<button id="loginBtn"><a href="/login">Login</button></a>
+					<button id="signupBtn"><a href="/signup">Sign Up</button></a>
+				</div>
+				<div class="forms">
+					<form id="loginForm" class="hidden">
+						<input type="email" placeholder="Email Address">
+						<input type="password" placeholder="Password">
+						<button type="submit">Login</button>
+					</form>
+					<form id="signupForm" class="hidden">
+						<!-- Signup form fields go here -->
+					</form>
+				</div>
+			</div>
+
+			<%- include('./partials/footer.ejs')%>
+				<script src="script.js"></script>
+	</body>
+
+</html>
