@@ -128,6 +128,15 @@ button:hover {
   background-color: #0056b3;
 }
 
+
+#loginBtn a{
+  text-decoration: none;
+  color: white;
+}
+#signupBtn a{
+  text-decoration: none;
+  color: white;
+}
 /* .forms {
   display: flex;
   flex-direction: column;
