@@ -33,6 +33,10 @@ app.get('/home', (req, res) => {
     res.render('home', { title: 'Home' })
 })
 
+app.get('/verify-otp', (req, res) => {
+    const error = req.query.error || null;
+    res.render('verify-otp', { error: error, title: "Verify-OTP" });
+});
 
 // Function to send mail to the email
 
@@ -58,8 +62,11 @@ async function sendOTP(email, otp) {
     await transporter.sendMail(mailOptions);
 }
 
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+}
 
-
+const otpStorage = {};
 
 
 app.post('/signup', async (req, res) => {
@@ -92,40 +99,59 @@ app.post('/signup', async (req, res) => {
         return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one special character like @ or $' });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
 
     try {
-        await sendOTP(email, otp);
+        // Generate OTP
+        const otp = generateOTP();
+        // Store OTP temporarily
+        otpStorage[otp] = true; // Store OTP directly without using email as key
+        sendOTP(email, otp); // Send OTP to email
+        // Redirect to OTP verification page
+        res.redirect('/verify-otp');
     } catch (error) {
         console.error('Error sending OTP:', error);
-        return res.status(500).send('Error sending OTP');
+        res.status(500).send('Error sending OTP');
+    }
+
+})
+
+
+app.post('/verify-otp', async (req, res) => {
+    const { otp } = req.body;
+
+    // Retrieve stored user data along with OTP
+    const userData = otpStorage[otp];
+
+    if (!userData) {
+        const error = "Invalid OTP";
+        // Redirect to the OTP verification page with the error message
+        return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
     }
 
     try {
-        const existingUser = await collection.findOne({ name: fullName });
-
-        if (existingUser) {
-            return res.send("User already exists. Please try another name.");
-        }
+        // Save user data into the database
         const saltRounds = 10;
-        const hashPassword = await bcrypt.hash(password, saltRounds);
+        const hashPassword = await bcrypt.hash(userData.password, saltRounds);
 
         const newUser = new collection({
-            name: fullName,
-            email: email,
-            phone: phoneNumber,
+            name: userData.fullName,
+            email: userData.email,
+            phone: userData.phoneNumber,
             password: hashPassword
         });
 
         await newUser.save();
 
+        // Clear OTP storage
+        delete otpStorage[otp];
+
+        // Redirect to login page
         res.redirect('/login');
     } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal server error");
+        console.error('Error saving user data:', error);
+        res.status(500).send('Error saving user data');
     }
-
-})
+});
 
 
 app.post('/login', (req, res) => {

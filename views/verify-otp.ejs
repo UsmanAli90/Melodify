@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+  <%- include('./partials/head.ejs')%>
+
+  <body>
+    <h1>Verify OTP</h1>
+    <% if (error) { %>
+    <p><%= error %></p>
+    <% } %>
+    <form action="/verify-otp" method="post">
+      <label for="otp">Enter OTP:</label>
+      <input type="text" id="otp" name="otp" required />
+      <button type="submit">Verify OTP</button>
+    </form>
+    </script>
+  </body>
+
+  <%- include('./partials/footer.ejs')%>
+</html>
