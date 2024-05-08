@@ -9,9 +9,9 @@
 
             <div class="container">
                 <h1>Login to <span> Melodify</span></h1>
-                <form id="loginForm">
-                    <input type="email" placeholder="Email Address">
-                    <input type="password" placeholder="Password">
+                <form id="loginForm" action="/login" method="POST">
+                    <input type="email" placeholder="Email Address" name="email">
+                    <input type="password" placeholder="Password" name="password">
                     <button type="submit">Login</button>
                 </form>
             </div>

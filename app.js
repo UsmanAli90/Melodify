@@ -160,6 +160,17 @@ app.post('/login', (req, res) => {
         password: req.body.password
     });
     const { email, password } = req.body;
+
+
+    const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Check if password is empty
+    if (!password) {
+        return res.status(400).json({ error: 'Password field is required' });
+    }
     collection.findOne({ email: email })
         .then(user => {
             if (!user) {
@@ -176,8 +187,6 @@ app.post('/login', (req, res) => {
             console.log(err);
             res.status(500).json({ error: 'Internal server error' });
         });
-
-
 })
 
 
