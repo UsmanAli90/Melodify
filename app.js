@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { body, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
 
 const app = express()
 app.use(express.json())
@@ -33,6 +34,34 @@ app.get('/home', (req, res) => {
 })
 
 
+// Function to send mail to the email
+
+async function sendOTP(email, otp) {
+    // Create a Nodemailer transporter
+    const transporter = nodemailer.createTransport({
+        service: 'Gmail', // Change this to your email service provider
+        auth: {
+            user: 'f219133@cfd.nu.edu.pk', // Your email address
+            pass: 'razzaq@12345', // Your email password
+        },
+    });
+
+    // Define email options
+    const mailOptions = {
+        from: 'f219133@cfd.nu.edu.pk', // Sender address
+        to: email, // Recipient address
+        subject: 'Verification OTP', // Subject line
+        text: `Your OTP for email verification is: ${otp}`, // Plain text body
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+}
+
+
+
+
+
 app.post('/signup', async (req, res) => {
     const { fullName, email, confirmEmail, phoneNumber, password } = req.body;
 
@@ -61,6 +90,15 @@ app.post('/signup', async (req, res) => {
     const passwordRegex = /^(?=.*[@$])(?=.*[a-zA-Z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
         return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one special character like @ or $' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000); // 6-digit OTP
+
+    try {
+        await sendOTP(email, otp);
+    } catch (error) {
+        console.error('Error sending OTP:', error);
+        return res.status(500).send('Error sending OTP');
     }
 
     try {
