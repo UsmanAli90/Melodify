@@ -1,6 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const { body, validationResult } = require('express-validator');
 
 const app = express()
 app.use(express.json())
@@ -33,10 +34,37 @@ app.get('/home', (req, res) => {
 
 
 app.post('/signup', async (req, res) => {
-    const { fullname, email, phone, password } = req.body;
+    const { fullName, email, confirmEmail, phoneNumber, password } = req.body;
+
+    if (!fullName || !email || !confirmEmail || !phoneNumber || !password) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Check if confirmEmail matches email
+    if (email !== confirmEmail) {
+        return res.status(400).json({ error: 'Email addresses do not match' });
+    }
+
+    // Validate phone number format
+    const phoneRegex = /^\d{11,14}$/;
+    if (!phoneRegex.test(phoneNumber)) {
+        return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+
+    // Check if password is at least 8 characters long and contains at least one special character
+    const passwordRegex = /^(?=.*[@$])(?=.*[a-zA-Z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one special character like @ or $' });
+    }
 
     try {
-        const existingUser = await collection.findOne({ name: fullname });
+        const existingUser = await collection.findOne({ name: fullName });
 
         if (existingUser) {
             return res.send("User already exists. Please try another name.");
@@ -45,9 +73,9 @@ app.post('/signup', async (req, res) => {
         const hashPassword = await bcrypt.hash(password, saltRounds);
 
         const newUser = new collection({
-            name: fullname,
+            name: fullName,
             email: email,
-            phone: phone,
+            phone: phoneNumber,
             password: hashPassword
         });
 
@@ -60,6 +88,7 @@ app.post('/signup', async (req, res) => {
     }
 
 })
+
 
 app.post('/login', (req, res) => {
     const userdata = new collection({
