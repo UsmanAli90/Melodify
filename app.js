@@ -3,7 +3,6 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
-const user = require('./models/user')
 
 const app = express()
 app.use(express.json())
@@ -100,30 +99,21 @@ app.post('/signup', async (req, res) => {
         return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one special character like @ or $' });
     }
 
+
     try {
         // Generate OTP
         const otp = generateOTP();
-
-        // Store user data along with OTP
-        const userData = {
-            fullName,
-            email,
-            phoneNumber,
-            password
-        };
-        otpStorage[otp] = userData;
-
-        // Send OTP to email
-        sendOTP(email, otp);
-
-        // Redirect to OTP verification page along with user data
-        res.redirect(`/verify-otp?fullName=${encodeURIComponent(fullName)}&email=${encodeURIComponent(email)}&phoneNumber=${encodeURIComponent(phoneNumber)}&password=${encodeURIComponent(password)}&otp=${encodeURIComponent(otp)}`);
+        // Store OTP temporarily
+        otpStorage[otp] = true; // Store OTP directly without using email as key
+        sendOTP(email, otp); // Send OTP to email
+        // Redirect to OTP verification page
+        res.redirect('/verify-otp');
     } catch (error) {
         console.error('Error sending OTP:', error);
         res.status(500).send('Error sending OTP');
     }
-})
 
+})
 
 
 app.post('/verify-otp', async (req, res) => {
@@ -131,7 +121,6 @@ app.post('/verify-otp', async (req, res) => {
 
     // Retrieve stored user data along with OTP
     const userData = otpStorage[otp];
-    console.log(userData);
 
     if (!userData) {
         const error = "Invalid OTP";
@@ -139,21 +128,16 @@ app.post('/verify-otp', async (req, res) => {
         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
     }
 
-    if (!userData.password) {
-        throw new Error("Invalid user data or password");
-    }
-
     try {
-
         // Save user data into the database
         const saltRounds = 10;
         const hashPassword = await bcrypt.hash(userData.password, saltRounds);
 
-        const newUser = new user({
+        const newUser = new collection({
             name: userData.fullName,
             email: userData.email,
             phone: userData.phoneNumber,
-            password: hashPassword,
+            password: hashPassword
         });
 
         await newUser.save();
@@ -168,7 +152,6 @@ app.post('/verify-otp', async (req, res) => {
         res.status(500).send('Error saving user data');
     }
 });
-
 
 
 app.post('/login', (req, res) => {
