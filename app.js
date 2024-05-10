@@ -113,50 +113,6 @@ app.post('/signup', async (req, res) => {
 })
 
 
-//     const { otp } = req.body;
-
-//     // Retrieve stored user data along with OTP
-//     const userData = otpStorage[otp];
-
-//     if (!userData) {
-//         const error = "Invalid OTP";
-//         // Redirect to the OTP verification page with the error message
-//         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
-//     }
-
-//     try {
-//         // Save user data into the database
-//         const saltRounds = 10;
-//         bcrypt.hash(plaintextPassword, saltRounds, (err, hash) => {
-//             if (err) {
-//               // Handle error
-//               console.error('Error hashing password:', err);
-//               return;
-//             }
-//             // Use the hashed password
-//             console.log('Hashed password:', hash);
-//           });
-//         // const hashPassword = await bcrypt.hash(userData.password, saltRounds);
-
-//         const newUser = new collection({
-//             name: userData.fullName,
-//             email: userData.email,
-//             phone: userData.phoneNumber,
-//             password: hashPassword
-//         });
-
-//         await newUser.save();
-
-//         // Clear OTP storage
-//         delete otpStorage[otp];
-
-//         // Redirect to login page
-//         res.redirect('/login');
-//     } catch (error) {
-//         console.error('Error saving user data:', error);
-//         res.status(500).send('Error saving user data');
-//     }
-// });
 
 app.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
