@@ -1,19 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-  <%- include('./partials/head.ejs')%>
+<%- include('./partials/head.ejs', { title: 'Verify OTP' })%>
 
   <body>
     <h1>Verify OTP</h1>
-    <% if (error) { %>
-    <p><%= error %></p>
-    <% } %>
+
+
     <form action="/verify-otp" method="post">
       <label for="otp">Enter OTP:</label>
       <input type="text" id="otp" name="otp" required />
+      <input type="hidden" name="fullName" value="<%= fullName %>" />
+      <input type="hidden" name="email" value="<%= email %>" />
+      <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>" />
+      <input type="hidden" name="password" value="<%= password %>" />
+
+
       <button type="submit">Verify OTP</button>
     </form>
     </script>
   </body>
 
   <%- include('./partials/footer.ejs')%>
+
 </html>

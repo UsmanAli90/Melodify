@@ -3,13 +3,14 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
+const collection = require('./models/user')
 
 const app = express()
 app.use(express.json())
 
 mongoose.connect('mongodb://localhost:27017/Test').then((result) =>
     app.listen(3000)).catch((err) =>
-        console.log(err))
+        console.log("DB can't be connected ", err))
 
 
 app.set('view engine', 'ejs')
@@ -38,27 +39,25 @@ app.get('/verify-otp', (req, res) => {
     res.render('verify-otp', { error: error, title: "Verify-OTP" });
 });
 
-// Function to send mail to the email
 
 async function sendOTP(email, otp) {
-    // Create a Nodemailer transporter
+
     const transporter = nodemailer.createTransport({
-        service: 'Gmail', // Change this to your email service provider
+        service: 'Gmail',
         auth: {
-            user: 'f219133@cfd.nu.edu.pk', // Your email address
-            pass: 'razzaq@12345', // Your email password
+            user: 'f219133@cfd.nu.edu.pk',
+            pass: 'razzaq@12345',
         },
     });
 
-    // Define email options
+
     const mailOptions = {
-        from: 'f219133@cfd.nu.edu.pk', // Sender address
-        to: email, // Recipient address
-        subject: 'Verification OTP', // Subject line
-        text: `Your OTP for email verification is: ${otp}`, // Plain text body
+        from: 'f219133@cfd.nu.edu.pk',
+        to: email,
+        subject: 'Verification OTP',
+        text: `Your OTP for email verification is: ${otp}`,
     };
 
-    // Send email
     await transporter.sendMail(mailOptions);
 }
 
@@ -76,24 +75,24 @@ app.post('/signup', async (req, res) => {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-    // Validate email format
+
     const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Check if confirmEmail matches email
+
     if (email !== confirmEmail) {
         return res.status(400).json({ error: 'Email addresses do not match' });
     }
 
-    // Validate phone number format
+
     const phoneRegex = /^\d{11,14}$/;
     if (!phoneRegex.test(phoneNumber)) {
         return res.status(400).json({ error: 'Invalid phone number format' });
     }
 
-    // Check if password is at least 8 characters long and contains at least one special character
+
     const passwordRegex = /^(?=.*[@$])(?=.*[a-zA-Z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
         return res.status(400).json({ error: 'Password must be at least 8 characters long and contain at least one special character like @ or $' });
@@ -101,13 +100,11 @@ app.post('/signup', async (req, res) => {
 
 
     try {
-        // Generate OTP
+
         const otp = generateOTP();
-        // Store OTP temporarily
-        otpStorage[otp] = true; // Store OTP directly without using email as key
-        sendOTP(email, otp); // Send OTP to email
-        // Redirect to OTP verification page
-        res.redirect('/verify-otp');
+        otpStorage[otp] = { fullName, email, phoneNumber, password };
+        sendOTP(email, otp);
+        res.render('verify-otp', { fullName, email, phoneNumber, password });
     } catch (error) {
         console.error('Error sending OTP:', error);
         res.status(500).send('Error sending OTP');
@@ -116,37 +113,86 @@ app.post('/signup', async (req, res) => {
 })
 
 
+//     const { otp } = req.body;
+
+//     // Retrieve stored user data along with OTP
+//     const userData = otpStorage[otp];
+
+//     if (!userData) {
+//         const error = "Invalid OTP";
+//         // Redirect to the OTP verification page with the error message
+//         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
+//     }
+
+//     try {
+//         // Save user data into the database
+//         const saltRounds = 10;
+//         bcrypt.hash(plaintextPassword, saltRounds, (err, hash) => {
+//             if (err) {
+//               // Handle error
+//               console.error('Error hashing password:', err);
+//               return;
+//             }
+//             // Use the hashed password
+//             console.log('Hashed password:', hash);
+//           });
+//         // const hashPassword = await bcrypt.hash(userData.password, saltRounds);
+
+//         const newUser = new collection({
+//             name: userData.fullName,
+//             email: userData.email,
+//             phone: userData.phoneNumber,
+//             password: hashPassword
+//         });
+
+//         await newUser.save();
+
+//         // Clear OTP storage
+//         delete otpStorage[otp];
+
+//         // Redirect to login page
+//         res.redirect('/login');
+//     } catch (error) {
+//         console.error('Error saving user data:', error);
+//         res.status(500).send('Error saving user data');
+//     }
+// });
+
 app.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
-
-    // Retrieve stored user data along with OTP
     const userData = otpStorage[otp];
-
+    console.log("User data is ", userData)
     if (!userData) {
         const error = "Invalid OTP";
-        // Redirect to the OTP verification page with the error message
         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
     }
 
     try {
-        // Save user data into the database
+
         const saltRounds = 10;
-        const hashPassword = await bcrypt.hash(userData.password, saltRounds);
+        bcrypt.hash(userData.password, saltRounds, async (err, hash) => {
+            if (err) {
 
-        const newUser = new collection({
-            name: userData.fullName,
-            email: userData.email,
-            phone: userData.phoneNumber,
-            password: hashPassword
+                console.error('Error hashing password:', err);
+                return res.status(500).send('Error hashing password');
+            }
+            console.log("Things are: ", userData.fullName, userData.email, userData.phoneNumber, hash)
+            try {
+                const newUser = new collection({
+                    fullName: userData.fullName,
+                    email: userData.email,
+                    phoneNumber: userData.phoneNumber,
+                    password: hash
+                });
+                console.log("New user is: ", newUser.fullName, newUser.email, newUser.phoneNumber, newUser.password)
+                await newUser.save();
+
+                res.redirect('/login');
+            } catch (error) {
+                console.error('Error saving user data:', error);
+                res.status(500).send('Error saving user data');
+            }
         });
-
-        await newUser.save();
-
-        // Clear OTP storage
-        delete otpStorage[otp];
-
-        // Redirect to login page
-        res.redirect('/login');
     } catch (error) {
         console.error('Error saving user data:', error);
         res.status(500).send('Error saving user data');
@@ -154,11 +200,7 @@ app.post('/verify-otp', async (req, res) => {
 });
 
 
-app.post('/login', (req, res) => {
-    const userdata = new collection({
-        email: req.body.email,
-        password: req.body.password
-    });
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
 
@@ -167,26 +209,23 @@ app.post('/login', (req, res) => {
         return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Check if password is empty
     if (!password) {
         return res.status(400).json({ error: 'Password field is required' });
     }
-    collection.findOne({ email: email })
-        .then(user => {
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-
-            const ispassword = bcrypt.compare(req.body.password, user.password)
-            if (!ispassword) {
-                return res.status(401).json({ error: 'Incorrect password' });
-            }
-            res.redirect('/home');
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({ error: 'Internal server error' });
-        });
+    try {
+        const userData = await collection.findOne({ email: email });
+        if (!userData) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        const ispassword = await bcrypt.compare(req.body.password, userData.password)
+        if (!ispassword) {
+            return res.status(401).json({ error: 'Incorrect password' });
+        }
+        res.redirect('/home');
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 })
 
 

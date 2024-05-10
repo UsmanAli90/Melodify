@@ -5,7 +5,7 @@ const Schema = mongoose.Schema
 
 //Schemas define structure of our model/Databse 
 const SignupSchema = new Schema({
-    name: {
+    fullName: {
         type: String,
         required: true
     },
@@ -13,7 +13,7 @@ const SignupSchema = new Schema({
         type: String,
         required: true
     },
-    phone: {
+    phoneNumber: {
         type: String,
         required: true
     },
