@@ -23,7 +23,21 @@
         <label class="main" for="magicButton"></label>
 
         <div class="coverImage"></div>
-        <div class="search"></div>
+        <div class="search">
+            <div class="search-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+            <div class="profile-icon">
+                <i class="fa-solid fa-user"></i>
+                <div class="profile-icon-inner"></div>
+                <div class="dropdown-content">
+                    <a href="/profile"><%= username %></a>
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+        
         <div class="bodyPlayer"></div>
 
         <table class="list">

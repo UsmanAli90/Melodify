@@ -4,6 +4,8 @@ const bcrypt = require('bcrypt')
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
 const collection = require('./models/user')
+const session = require('express-session');
+
 
 const app = express()
 app.use(express.json())
@@ -17,6 +19,12 @@ app.set('view engine', 'ejs')
 
 app.use(express.static('public'))
 app.use(express.urlencoded({ extended: false }))
+app.use(session({
+    secret: 'your-secret-key',
+    resave: false,
+    saveUninitialized: false
+}));
+
 
 
 app.get('/', (req, res) => {
@@ -30,14 +38,26 @@ app.get('/signup', (req, res) => {
     res.render('signup', { title: 'SignUp' })
 })
 
-app.get('/home', (req, res) => {
-    res.render('home', { title: 'Home' })
-})
+app.get('/home', isAuthenticated, (req, res) => {
+    res.render('home', { title: 'Home', username: req.session.user.name });
+});
+
 
 app.get('/verify-otp', (req, res) => {
     const error = req.query.error || null;
     res.render('verify-otp', { error: error, title: "Verify-OTP" });
 });
+
+
+function isAuthenticated(req, res, next) {
+    if (req.session.user) {
+        // User is authenticated, proceed to next middleware or route handler
+        next();
+    } else {
+        // User is not authenticated, redirect to login page
+        res.redirect('/login');
+    }
+}
 
 
 async function sendOTP(email, otp) {
@@ -159,7 +179,6 @@ app.post('/verify-otp', async (req, res) => {
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-
     const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'Invalid email format' });
@@ -168,21 +187,43 @@ app.post('/login', async (req, res) => {
     if (!password) {
         return res.status(400).json({ error: 'Password field is required' });
     }
+
     try {
         const userData = await collection.findOne({ email: email });
         if (!userData) {
             return res.status(404).json({ error: 'User not found' });
         }
-        const ispassword = await bcrypt.compare(req.body.password, userData.password)
-        if (!ispassword) {
+
+        const isPasswordValid = await bcrypt.compare(password, userData.password);
+        if (!isPasswordValid) {
             return res.status(401).json({ error: 'Incorrect password' });
         }
+
+        // Create session
+        req.session.user = userData; // You can store the entire user data in the session
+        console.log(req.session.user)
         res.redirect('/home');
     } catch (err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({ error: 'Internal server error' });
     }
-})
+});
+
+
+app.get('/logout', (req, res) => {
+    // Destroy session
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).json({ error: 'Internal server error' });
+        } else {
+            // Redirect to login page after logout
+            res.redirect('/login');
+        }
+    });
+});
+
+
 
 
 app.use((req, res) => {

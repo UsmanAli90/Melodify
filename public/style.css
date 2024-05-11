@@ -338,9 +338,13 @@ label.main:hover:before {
   border-radius: 20px;
 }
 
+.search {
+  position: relative;
+}
+
 .search:before {
   position: absolute;
-  top: 23px;
+  top: 10px;
   right: 53px;
   font-family: FontAwesome;
   /* Search Icon  */
@@ -352,10 +356,18 @@ label.main:hover:before {
   z-index: 10;
   transition: all 0.3s ease-in;
 }
-.search:after {
+
+.menu-icon {
   position: absolute;
   top: 23px;
-  right: 20px;
+  right: 20px; /* Adjust the position as needed */
+  /* Add styling for the menu icon */
+}
+
+.search .profile-icon {
+  position: absolute;
+  top: 10px;
+  right: 20px; /* Adjust the position as needed */
   font-family: FontAwesome;
   /* Profile Icon  */
   content: '\f007';  
@@ -367,8 +379,30 @@ label.main:hover:before {
   transition: all 0.3s ease-in;
 }
 
-.search:hover:before {
-  color: #bbb;
+.search .dropdown-content {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #f9f9f9;
+  min-width: 120px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 10;
+}
+
+.search .profile-icon:hover .dropdown-content {
+  display: block;
+}
+
+.search .dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.search .dropdown-content a:hover {
+  background-color: #f1f1f1;
 }
 
 .bodyPlayer {
