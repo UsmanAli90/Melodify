@@ -5,14 +5,147 @@ const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
 const collection = require('./models/user')
 const session = require('express-session');
+const { MongoClient, GridFSBucket } = require('mongodb');
+const fs = require('fs');
+const util = require('util');
+const hashAsync = util.promisify(bcrypt.hash);
 
 
 const app = express()
 app.use(express.json())
 
-mongoose.connect('mongodb://localhost:27017/Test').then((result) =>
-    app.listen(3000)).catch((err) =>
-        console.log("DB can't be connected ", err))
+
+let gfs
+function initializeGridFSBucket() {
+    gfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db);
+}
+
+async function fileExists(filename) {
+    const files = await gfs.find({ filename }).toArray();
+    return files.length > 0;
+}
+
+
+async function uploadFileToGridFSIfNotExists(filename, filepath) {
+    if (await fileExists(filename)) {
+        console.log(`File '${filename}' already exists in the database.`);
+        return;
+    }
+
+    try {
+        const uploadStream = gfs.openUploadStream(filename);
+        const readStream = fs.createReadStream(filepath);
+
+        readStream.pipe(uploadStream);
+
+        await new Promise((resolve, reject) => {
+            uploadStream.on('finish', resolve);
+            uploadStream.on('error', reject);
+        });
+
+        console.log(`File '${filename}' uploaded successfully.`);
+    } catch (error) {
+        console.error('Error uploading file to GridFS:', error);
+    }
+}
+
+async function getSongsFromDatabase() {
+    try {
+        const songs = await gfs.find().toArray();
+        console.log(songs)
+        return songs.map(song => ({
+            filename: song.filename,
+            duration1: song.duration // You need to fetch the duration from your database
+        }));
+    } catch (error) {
+        console.error('Error fetching songs from database:', error);
+        return [];
+    }
+}
+
+
+
+mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
+    console.log('Connected to MongoDB');
+    initializeGridFSBucket();
+    // Usage
+    const filename = 'Sang Rahiyo'
+    const filepath = './songs/song1.mp3'
+    const duration = '03:34'
+    const filesToUpload = [
+        { filename: 'Sang Rahiyo', filepath: './songs/song1.mp3', duration: '03:34' },
+        // Add more files if needed
+    ];
+
+    for (const file of filesToUpload) {
+        await uploadFileToGridFSIfNotExists(file.filename, file.filepath, file.duration);
+    }
+
+    app.post('/verify-otp', async (req, res) => {
+        const { otp } = req.body;
+        const userData = otpStorage[otp];
+        console.log("User data is ", userData)
+        if (!userData) {
+            const error = "Invalid OTP";
+            return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
+        }
+
+        try {
+            const saltRounds = 10;
+            const hash = await bcrypt.hash(userData.password, saltRounds);
+
+            const newUser = new User({
+                fullName: userData.fullName,
+                email: userData.email,
+                phoneNumber: userData.phoneNumber,
+                password: hash
+            });
+            console.log("Iam before save")
+            console.log("user data before saving is : ", newUser)
+            await newUser.save();
+
+            res.redirect('/login');
+        } catch (error) {
+            console.error('Error saving user data:', error);
+            res.status(500).send('Error saving user data');
+        }
+    });
+
+
+
+    uploadFileToGridFSIfNotExists(filename, filepath, duration)
+        .then(() => console.log('File already uploaded successfully'))
+        .catch(error => console.error('Error uploading file:', error));
+
+    // Start the server
+    app.listen(3000, () => {
+        console.log('Server is running on port 3000');
+    });
+})
+    .catch((err) => {
+        console.log("DB can't be connected ", err);
+    });
+
+
+
+
+app.get('/play-song/:Sang Rahiyo', async (req, res) => {
+    try {
+        const filename = req.params.filename;
+        const song = await gfs.find({ filename }).toArray();
+
+        if (!song || song.length === 0) {
+            return res.status(404).json({ error: 'Song not found' });
+        }
+
+        const readStream = gfs.openDownloadStreamByName(filename);
+        readStream.pipe(res);
+    } catch (error) {
+        console.error('Error playing song:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 
 app.set('view engine', 'ejs')
@@ -38,23 +171,24 @@ app.get('/signup', (req, res) => {
     res.render('signup', { title: 'SignUp' })
 })
 
-app.get('/home', isAuthenticated, (req, res) => {
-    res.render('home', { title: 'Home', username: req.session.user.name });
+
+
+app.get('/home', isAuthenticated, async (req, res) => {
+    try {
+        const songs = await getSongsFromDatabase();
+        res.render('home', { title: 'Home', username: req.session.user.fullName, songs });
+    } catch (error) {
+        console.error('Error rendering home page:', error);
+        res.status(500).send('Error rendering home page');
+    }
 });
-
-
-app.get('/verify-otp', (req, res) => {
-    const error = req.query.error || null;
-    res.render('verify-otp', { error: error, title: "Verify-OTP" });
-});
-
 
 function isAuthenticated(req, res, next) {
     if (req.session.user) {
-        // User is authenticated, proceed to next middleware or route handler
+
         next();
     } else {
-        // User is not authenticated, redirect to login page
+
         res.redirect('/login');
     }
 }
@@ -137,7 +271,7 @@ app.post('/signup', async (req, res) => {
 app.post('/verify-otp', async (req, res) => {
     const { otp } = req.body;
     const userData = otpStorage[otp];
-    console.log("User data is ", userData)
+    // console.log("User data is ", userData)
     if (!userData) {
         const error = "Invalid OTP";
         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
@@ -146,27 +280,29 @@ app.post('/verify-otp', async (req, res) => {
     try {
 
         const saltRounds = 10;
+
         bcrypt.hash(userData.password, saltRounds, async (err, hash) => {
             if (err) {
 
                 console.error('Error hashing password:', err);
                 return res.status(500).send('Error hashing password');
             }
-            console.log("Things are: ", userData.fullName, userData.email, userData.phoneNumber, hash)
             try {
+
                 const newUser = new collection({
                     fullName: userData.fullName,
                     email: userData.email,
                     phoneNumber: userData.phoneNumber,
                     password: hash
                 });
-                console.log("New user is: ", newUser.fullName, newUser.email, newUser.phoneNumber, newUser.password)
+                console.log("Iam before save")
+                console.log("user data before saving is : ", newUser)
                 await newUser.save();
 
                 res.redirect('/login');
             } catch (error) {
-                console.error('Error saving user data:', error);
-                res.status(500).send('Error saving user data');
+                console.error('Error saving user data in 1:', error);
+                res.status(500).send('Error saving user data 1');
             }
         });
     } catch (error) {
@@ -178,7 +314,7 @@ app.post('/verify-otp', async (req, res) => {
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
-
+    console.log("hey Iam before userdata1")
     const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
     if (!emailRegex.test(email)) {
         return res.status(400).json({ error: 'Invalid email format' });
@@ -187,9 +323,13 @@ app.post('/login', async (req, res) => {
     if (!password) {
         return res.status(400).json({ error: 'Password field is required' });
     }
-
+    console.log("hey Iam before userdata2")
     try {
+        // const userData = await collection.findOne({ email: email }).maxTimeMS(30000); // Increase timeout to 30 seconds
+
+        console.log("hey Iam before userdata3")
         const userData = await collection.findOne({ email: email });
+        console.log("hey Iam after userdata")
         if (!userData) {
             return res.status(404).json({ error: 'User not found' });
         }
@@ -222,8 +362,6 @@ app.get('/logout', (req, res) => {
         }
     });
 });
-
-
 
 
 app.use((req, res) => {

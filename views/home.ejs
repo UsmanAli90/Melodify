@@ -31,16 +31,41 @@
                 <i class="fa-solid fa-user"></i>
                 <div class="profile-icon-inner"></div>
                 <div class="dropdown-content">
-                    <a href="/profile"><%= username %></a>
+                    <a href="/profile">
+                        <%= username %>
+                    </a>
                     <a href="/settings">Settings</a>
                     <a href="/logout">Logout</a>
                 </div>
             </div>
         </div>
-        
-        <div class="bodyPlayer"></div>
 
+        <div class="bodyPlayer"></div>
         <table class="list">
+            <% songs.forEach((song, index)=> { %>
+                <tr class="song">
+                    <td class="nr">
+                        <h5>
+                            <%= index + 1 %>
+                                <h5>
+                    </td>
+                    <td class="title">
+                        <h6>
+                            <%= song.filename %>
+                                <h6>
+                    </td>
+                    <td class="length">
+                        <h5>
+                            <%= song.duration %>
+                                <h5>
+                    </td>
+                    <!-- <td>
+                        <a href="/play/<%= song.filename %>">Play</a>
+                    </td> -->
+                </tr>
+                <% }); %>
+        </table>
+        <!-- <table class="list">
             <tr class="song">
                 <td class="nr">
                     <h5>1<h5>
@@ -157,22 +182,25 @@
                 </td>
                 <td><input type="checkbox" id="heart8" /><label class="zmr" for="heart8"></label></td>
             </tr>
-        </table>
+        </table> -->
+
 
         <div class="shadow"></div>
 
         <div class="bar"></div>
 
         <div class="info">
-            <h4>Numb Little Bug</h4>
+            <h4>Sang Rahiyo</h4>
             <!-- <h3>twenty one pilots - Blurryface</h3> -->
         </div>
-        <audio preload="auto" id="audio" controls>
-            <source src="/Numb.mp3">
-            <!-- <source src="https://drive.google.com/file/d/1nlwHX3ygoS0IekYNd8eWXuMgdLMzcgkC/view?usp=sharing"> -->
-            <!-- <source src="http://www.jplayer.org/audio/mp3/Miaow-02-Hidden.mp3">
-			<source src="http://www.jplayer.org/audio/mp3/Miaow-02-Hidden.ogg"> -->
+
+
+        <audio id="audio" controls>
+            <source src="/songs/song1.mp3">
+            <!-- Your browser does not support the audio element. -->
         </audio>
+
+
         <table class="player">
             <td><input type="checkbox" id="backward" /><label class="backward" for="backward"></label></td>
             <td><input type="checkbox" id="play" title="Play" onclick="togglePlayPause()" /><label class="play"
@@ -188,14 +216,14 @@
         </table>
 
         <div class="current">
-            <h2>STRESSED OUT</h2>
+            <!-- <h2>STRESSED OUT</h2> -->
         </div>
 
 
     </article>
     <!-- partial -->
     <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-    <script src="./script.js"></script>
+    <script src="/script.js"> </script>
 
 </body>
 
