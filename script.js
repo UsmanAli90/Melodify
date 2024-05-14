@@ -77,20 +77,52 @@
 //       document.getElementById('play').classList.remove('pause'); // Remove the class to revert to play icon
 //    }
 // }
-console.log("In script.js")
-let audio = document.getElementById('audio');
-let playpause = document.getElementById("play");
+// console.log("In script.js")
+// let audio = document.getElementById('audio');
+// let playpause = document.getElementById("play");
 
-function togglePlayPause() {
-   console.log("In PlayPause Function")
-   if (audio.paused || audio.ended) {
-      console.log("In First IF")
-      playpause.title = "Pause";
-      audio.play();
-   } else {
-      playpause.title = "Play";
-      audio.pause();
-   }
-}
+// function togglePlayPause() {
+//    console.log("In PlayPause Function")
+//    if (audio.paused || audio.ended) {
+//       console.log("In First IF")
+//       playpause.title = "Pause";
+//       audio.play();
+//    } else {
+//       playpause.title = "Play";
+//       audio.pause();
+//    }
+// }
+// console.log("Outside PlayPause Function")
 
-console.log("Outside PlayPause Function")
+
+// document.addEventListener('DOMContentLoaded', () => {
+//    // Fetch songs when the page loads
+//    fetch('/songs')
+//       .then(response => response.json())
+//       .then(songs => {
+//          // Populate the song list
+//          const list = document.querySelector('.list');
+//          songs.forEach((song, index) => {
+//             const row = document.createElement('tr');
+//             row.classList.add('song');
+//             row.innerHTML = `
+//                    <td class="nr">${index + 1}</td>
+//                    <td class="title">${song.filename}</td>
+//                    <td class="length">${song.duration}</td>
+//                    <td><button onclick="playSong('${song._id}', '${song.filename}')">Play</button></td>
+//                `;
+//             list.appendChild(row);
+//          });
+//       })
+//       .catch(error => console.error('Error fetching songs:', error));
+// });
+
+// // Function to play a song
+// function playSong(songId, filename) {
+//    const audio = document.getElementById('audio');
+//    audio.src = `/play-song/${filename}`;
+//    audio.play();
+// }
+
+
+

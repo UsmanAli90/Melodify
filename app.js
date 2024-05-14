@@ -49,19 +49,19 @@ async function uploadFileToGridFSIfNotExists(filename, filepath) {
     }
 }
 
-async function getSongsFromDatabase() {
-    try {
-        const songs = await gfs.find().toArray();
-        console.log(songs)
-        return songs.map(song => ({
-            filename: song.filename,
-            duration1: song.duration // You need to fetch the duration from your database
-        }));
-    } catch (error) {
-        console.error('Error fetching songs from database:', error);
-        return [];
-    }
-}
+// async function getSongsFromDatabase() {
+//     try {
+//         const songs = await gfs.find().toArray();
+//         console.log(songs)
+//         return songs.map(song => ({
+//             filename: song.filename,
+//             duration1: song.duration // You need to fetch the duration from your database
+//         }));
+//     } catch (error) {
+//         console.error('Error fetching songs from database:', error);
+//         return [];
+//     }
+// }
 
 
 
@@ -69,7 +69,7 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
     console.log('Connected to MongoDB');
     initializeGridFSBucket();
     // Usage
-    const filename = 'Sang Rahiyo'
+    const filename = 'sang rahiyo'
     const filepath = './songs/song1.mp3'
     const duration = '03:34'
     const filesToUpload = [
@@ -81,41 +81,8 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         await uploadFileToGridFSIfNotExists(file.filename, file.filepath, file.duration);
     }
 
-    app.post('/verify-otp', async (req, res) => {
-        const { otp } = req.body;
-        const userData = otpStorage[otp];
-        console.log("User data is ", userData)
-        if (!userData) {
-            const error = "Invalid OTP";
-            return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
-        }
-
-        try {
-            const saltRounds = 10;
-            const hash = await bcrypt.hash(userData.password, saltRounds);
-
-            const newUser = new User({
-                fullName: userData.fullName,
-                email: userData.email,
-                phoneNumber: userData.phoneNumber,
-                password: hash
-            });
-            console.log("Iam before save")
-            console.log("user data before saving is : ", newUser)
-            await newUser.save();
-
-            res.redirect('/login');
-        } catch (error) {
-            console.error('Error saving user data:', error);
-            res.status(500).send('Error saving user data');
-        }
-    });
 
 
-
-    uploadFileToGridFSIfNotExists(filename, filepath, duration)
-        .then(() => console.log('File already uploaded successfully'))
-        .catch(error => console.error('Error uploading file:', error));
 
     // Start the server
     app.listen(3000, () => {
@@ -129,22 +96,22 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
 
 
 
-app.get('/play-song/:Sang Rahiyo', async (req, res) => {
-    try {
-        const filename = req.params.filename;
-        const song = await gfs.find({ filename }).toArray();
+// app.get('/play-song/:Sang Rahiyo', async (req, res) => {
+//     try {
+//         const filename = req.params.filename;
+//         const song = await gfs.find({ filename }).toArray();
 
-        if (!song || song.length === 0) {
-            return res.status(404).json({ error: 'Song not found' });
-        }
+//         if (!song || song.length === 0) {
+//             return res.status(404).json({ error: 'Song not found' });
+//         }
 
-        const readStream = gfs.openDownloadStreamByName(filename);
-        readStream.pipe(res);
-    } catch (error) {
-        console.error('Error playing song:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+//         const readStream = gfs.openDownloadStreamByName(filename);
+//         readStream.pipe(res);
+//     } catch (error) {
+//         console.error('Error playing song:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
 
 
 
@@ -192,6 +159,37 @@ function isAuthenticated(req, res, next) {
         res.redirect('/login');
     }
 }
+
+app.get('/songs', async (req, res) => {
+    try {
+        const songs = await getSongsFromDatabase();
+        console.log(songs); // Log fetched songs to the console
+        res.json(songs);
+    } catch (error) {
+        console.error('Error fetching songs:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+async function getSongsFromDatabase() {
+    try {
+        const songs = await gfs.find().toArray();
+        const formattedSongs = songs.map(song => ({
+            filename: song.filename,
+            duration: song.metadata.duration,
+            id: song._id
+        }));
+        console.log(formattedSongs); // Log formatted songs to the console
+        return formattedSongs;
+    } catch (error) {
+        console.error('Error fetching songs from database:', error);
+        return [];
+    }
+}
+
+
+
 
 
 async function sendOTP(email, otp) {
