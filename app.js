@@ -3,83 +3,114 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const { body, validationResult } = require('express-validator');
 const nodemailer = require('nodemailer');
-const collection = require('./models/user')
+const User = require('./models/user')
 const session = require('express-session');
 const { MongoClient, GridFSBucket } = require('mongodb');
 const fs = require('fs');
 const util = require('util');
 const hashAsync = util.promisify(bcrypt.hash);
+const SongCollection = require('./models/songs')
 
 
 const app = express()
 app.use(express.json())
 
 
-let gfs
-function initializeGridFSBucket() {
-    gfs = new mongoose.mongo.GridFSBucket(mongoose.connection.db);
-}
-
-async function fileExists(filename) {
-    const files = await gfs.find({ filename }).toArray();
-    return files.length > 0;
-}
-
-
-async function uploadFileToGridFSIfNotExists(filename, filepath) {
-    if (await fileExists(filename)) {
-        console.log(`File '${filename}' already exists in the database.`);
-        return;
-    }
-
-    try {
-        const uploadStream = gfs.openUploadStream(filename);
-        const readStream = fs.createReadStream(filepath);
-
-        readStream.pipe(uploadStream);
-
-        await new Promise((resolve, reject) => {
-            uploadStream.on('finish', resolve);
-            uploadStream.on('error', reject);
-        });
-
-        console.log(`File '${filename}' uploaded successfully.`);
-    } catch (error) {
-        console.error('Error uploading file to GridFS:', error);
-    }
-}
-
-async function getSongsFromDatabase() {
-    try {
-        const songs = await gfs.find().toArray();
-        console.log(songs)
-        return songs.map(song => ({
-            filename: song.filename,
-            duration1: song.duration // You need to fetch the duration from your database
-        }));
-    } catch (error) {
-        console.error('Error fetching songs from database:', error);
-        return [];
-    }
-}
 
 
 
 mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
     console.log('Connected to MongoDB');
-    initializeGridFSBucket();
-    // Usage
-    const filename = 'Sang Rahiyo'
-    const filepath = './songs/song1.mp3'
-    const duration = '03:34'
-    const filesToUpload = [
-        { filename: 'Sang Rahiyo', filepath: './songs/song1.mp3', duration: '03:34' },
-        // Add more files if needed
+    const db = mongoose.connection.db;
+    const gfs = new GridFSBucket(db);
+
+    // Define an array of songs with their metadata
+    const songs = [
+        {
+            songname: 'Numb',
+            songcategory: 'English',
+            songduration: '3:45',
+            songartist: 'Artist 1',
+            filepath: './assets/songs/Numb.mp3'
+        },
+        {
+            songname: 'Sang Rahiyo',
+            songcategory: 'Category 2',
+            songduration: '4:20',
+            songartist: 'Artist 2',
+            filepath: './assets/songs/song1.mp3'
+        }
+        // Add more songs if needed
     ];
 
-    for (const file of filesToUpload) {
-        await uploadFileToGridFSIfNotExists(file.filename, file.filepath, file.duration);
+    // Function to check if a song already exists in the database
+    async function songExists(songname) {
+        return await SongCollection.exists({ songname });
     }
+
+    // Function to upload a file to GridFS along with metadata
+    async function uploadFileToGridFS(song) {
+        // Check if the song already exists
+        if (await songExists(song.songname)) {
+            console.log(`Song '${song.songname}' already exists in the database. Skipping upload.`);
+            return;
+        }
+
+        const readStream = fs.createReadStream(song.filepath);
+
+        // Set metadata for the file
+        const metadata = {
+            songname: song.songname,
+            songcategory: song.songcategory,
+            songduration: song.songduration,
+            songartist: song.songartist
+        };
+
+        // Open an upload stream
+        const uploadStream = gfs.openUploadStream(song.songname, { metadata });
+
+        // Pipe the read stream to the upload stream
+        readStream.pipe(uploadStream);
+
+        // Return a promise that resolves once the upload is complete
+        return new Promise((resolve, reject) => {
+            uploadStream.on('finish', async () => {
+                // Save song metadata to the database
+                const newSong = new SongCollection(metadata);
+                await newSong.save();
+                resolve();
+            });
+            uploadStream.on('error', reject);
+        });
+    }
+
+    // Upload all songs
+    try {
+        await Promise.all(songs.map(uploadFileToGridFS));
+        console.log('All songs uploaded successfully');
+    } catch (error) {
+        console.error('Error uploading songs:', error);
+    }
+
+    app.get('/play-song/:songname', async (req, res) => {
+        try {
+            const songname = req.params.songname;
+
+            // Fetch the song from the database
+            const song = await gfs.find({ filename: songname }).toArray();
+
+            if (!song || song.length === 0) {
+                return res.status(404).json({ error: 'Song not found' });
+            }
+
+            // Stream the song data back to the client
+            const readStream = gfs.openDownloadStreamByName(songname);
+            readStream.pipe(res);
+        } catch (error) {
+            console.error('Error playing song:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
 
     app.post('/verify-otp', async (req, res) => {
         const { otp } = req.body;
@@ -113,10 +144,6 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
 
 
 
-    uploadFileToGridFSIfNotExists(filename, filepath, duration)
-        .then(() => console.log('File already uploaded successfully'))
-        .catch(error => console.error('Error uploading file:', error));
-
     // Start the server
     app.listen(3000, () => {
         console.log('Server is running on port 3000');
@@ -129,23 +156,16 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
 
 
 
-app.get('/play-song/:Sang Rahiyo', async (req, res) => {
+
+async function getSongsFromDatabase() {
     try {
-        const filename = req.params.filename;
-        const song = await gfs.find({ filename }).toArray();
-
-        if (!song || song.length === 0) {
-            return res.status(404).json({ error: 'Song not found' });
-        }
-
-        const readStream = gfs.openDownloadStreamByName(filename);
-        readStream.pipe(res);
+        const songs = await SongCollection.find({});
+        return songs;
     } catch (error) {
-        console.error('Error playing song:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error('Error fetching songs from database:', error);
+        throw error;
     }
-});
-
+}
 
 
 app.set('view engine', 'ejs')
@@ -172,8 +192,8 @@ app.get('/signup', (req, res) => {
 })
 
 
-
 app.get('/home', isAuthenticated, async (req, res) => {
+
     try {
         const songs = await getSongsFromDatabase();
         res.render('home', { title: 'Home', username: req.session.user.fullName, songs });
@@ -289,7 +309,7 @@ app.post('/verify-otp', async (req, res) => {
             }
             try {
 
-                const newUser = new collection({
+                const newUser = new User({
                     fullName: userData.fullName,
                     email: userData.email,
                     phoneNumber: userData.phoneNumber,
@@ -325,10 +345,9 @@ app.post('/login', async (req, res) => {
     }
     console.log("hey Iam before userdata2")
     try {
-        // const userData = await collection.findOne({ email: email }).maxTimeMS(30000); // Increase timeout to 30 seconds
-
         console.log("hey Iam before userdata3")
-        const userData = await collection.findOne({ email: email });
+        console.log("hey Iam before finding email")
+        const userData = await User.findOne({ email: email });
         console.log("hey Iam after userdata")
         if (!userData) {
             return res.status(404).json({ error: 'User not found' });

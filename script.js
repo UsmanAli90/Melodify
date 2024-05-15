@@ -77,20 +77,33 @@
 //       document.getElementById('play').classList.remove('pause'); // Remove the class to revert to play icon
 //    }
 // }
-console.log("In script.js")
-let audio = document.getElementById('audio');
-let playpause = document.getElementById("play");
+// console.log("In script.js")
+// let audio = document.getElementById('audio');
+// let playpause = document.getElementById("play");
 
-function togglePlayPause() {
-   console.log("In PlayPause Function")
-   if (audio.paused || audio.ended) {
-      console.log("In First IF")
-      playpause.title = "Pause";
-      audio.play();
-   } else {
-      playpause.title = "Play";
-      audio.pause();
-   }
-}
+// function togglePlayPause() {
+//    console.log("In PlayPause Function")
+//    if (audio.paused || audio.ended) {
+//       console.log("In First IF")
+//       playpause.title = "Pause";
+//       audio.play();
+//    } else {
+//       playpause.title = "Play";
+//       audio.pause();
+//    }
+// }
 
-console.log("Outside PlayPause Function")
+// console.log("Outside PlayPause Function")
+
+// Function to play the song
+// function playSong(songname) {
+//    // Make a request to the /play-song/:songname endpoint
+//    fetch(`/play-song/${encodeURIComponent(songname)}`)
+//       .then(response => {
+//          // Start playing the song when the response is received
+//          const audio = new Audio();
+//          audio.src = URL.createObjectURL(response.body);
+//          audio.play();
+//       })
+//       .catch(error => console.error('Error playing song:', error));
+// }

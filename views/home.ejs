@@ -18,6 +18,7 @@
 
     <!-- THANK YOU! -->
 
+
     <article class="screen">
         <input type="checkbox" value="None" id="magicButton" name="check" />
         <label class="main" for="magicButton"></label>
@@ -41,31 +42,17 @@
         </div>
 
         <div class="bodyPlayer"></div>
-        <table class="list">
-            <% songs.forEach((song, index)=> { %>
-                <tr class="song">
-                    <td class="nr">
-                        <h5>
-                            <%= index + 1 %>
-                                <h5>
-                    </td>
-                    <td class="title">
-                        <h6>
-                            <%= song.filename %>
-                                <h6>
-                    </td>
-                    <td class="length">
-                        <h5>
-                            <%= song.duration %>
-                                <h5>
-                    </td>
-                    <!-- <td>
-                        <a href="/play/<%= song.filename %>">Play</a>
-                    </td> -->
-                </tr>
-                <% }); %>
-        </table>
-        <!-- <table class="list">
+
+        <% songs.forEach(song=> { %>
+            <div>
+                <h3>
+                    <%= song.filename %>
+                </h3>
+                <!-- When the play button is clicked, call the playSong function with the song filename -->
+                <button onclick="playSong('<%= song.filename %>')">Play</button>
+            </div>
+            <% }); %>
+                <!-- <table class="list">
             <tr class="song">
                 <td class="nr">
                     <h5>1<h5>
@@ -185,39 +172,39 @@
         </table> -->
 
 
-        <div class="shadow"></div>
+                <div class="shadow"></div>
 
-        <div class="bar"></div>
+                <div class="bar"></div>
 
-        <div class="info">
-            <h4>Sang Rahiyo</h4>
-            <!-- <h3>twenty one pilots - Blurryface</h3> -->
-        </div>
-
-
-        <audio id="audio" controls>
-            <source src="/songs/song1.mp3">
-            <!-- Your browser does not support the audio element. -->
-        </audio>
+                <div class="info">
+                    <h4>Sang Rahiyo</h4>
+                    <!-- <h3>twenty one pilots - Blurryface</h3> -->
+                </div>
 
 
-        <table class="player">
-            <td><input type="checkbox" id="backward" /><label class="backward" for="backward"></label></td>
-            <td><input type="checkbox" id="play" title="Play" onclick="togglePlayPause()" /><label class="play"
-                    for="play"></label></td>
-            <td><input type="checkbox" id="forward" /><label class="forward" for="forward"></label></td>
-        </table>
+                <audio id="audio" controls>
+                    <source src="/songs/song1.mp3">
+                    <!-- Your browser does not support the audio element. -->
+                </audio>
 
-        <table class="footer">
-            <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
-            <td><input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label></td>
-            <td><input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label></td>
-            <td><input type="checkbox" id="options" /><label class="options" for="options"></label></td>
-        </table>
 
-        <div class="current">
-            <!-- <h2>STRESSED OUT</h2> -->
-        </div>
+                <table class="player">
+                    <td><input type="checkbox" id="backward" /><label class="backward" for="backward"></label></td>
+                    <td><input type="checkbox" id="play" title="Play" onclick="togglePlayPause()" /><label class="play"
+                            for="play"></label></td>
+                    <td><input type="checkbox" id="forward" /><label class="forward" for="forward"></label></td>
+                </table>
+
+                <table class="footer">
+                    <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
+                    <td><input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label></td>
+                    <td><input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label></td>
+                    <td><input type="checkbox" id="options" /><label class="options" for="options"></label></td>
+                </table>
+
+                <div class="current">
+                    <!-- <h2>STRESSED OUT</h2> -->
+                </div>
 
 
     </article>
