@@ -80,6 +80,9 @@
 // console.log("In script.js")
 // let audio = document.getElementById('audio');
 // let playpause = document.getElementById("play");
+// console.log("In script.js")
+// let audio = document.getElementById('audio');
+// let playpause = document.getElementById("play");
 
 // function togglePlayPause() {
 //    console.log("In PlayPause Function")

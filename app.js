@@ -213,6 +213,37 @@ function isAuthenticated(req, res, next) {
     }
 }
 
+// app.get('/songs', async (req, res) => {
+//     try {
+//         const songs = await getSongsFromDatabase();
+//         console.log(songs); // Log fetched songs to the console
+//         res.json(songs);
+//     } catch (error) {
+//         console.error('Error fetching songs:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// });
+
+
+// async function getSongsFromDatabase() {
+//     try {
+//         const songs = await gfs.find().toArray();
+//         const formattedSongs = songs.map(song => ({
+//             filename: song.filename,
+//             duration: song.metadata.duration,
+//             id: song._id
+//         }));
+//         console.log(formattedSongs); // Log formatted songs to the console
+//         return formattedSongs;
+//     } catch (error) {
+//         console.error('Error fetching songs from database:', error);
+//         return [];
+//     }
+// }
+
+
+
+
 
 async function sendOTP(email, otp) {
 
