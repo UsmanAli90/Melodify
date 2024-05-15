@@ -39,6 +39,20 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songduration: '4:20',
             songartist: 'Artist 2',
             filepath: './assets/songs/song1.mp3'
+        },
+        {
+            songname: 'Amplifier',
+            songcategory: 'Pop',
+            songduration: '3:52',
+            songartist: 'Imran Khan',
+            filepath: './assets/songs/pop/Imran Khan - Amplifier.mp3'
+        },
+        {
+            songname: 'Downers At Dusk',
+            songcategory: 'Pop',
+            songduration: '4:10',
+            songartist: 'Talha Anjum',
+            filepath: './assets/songs/pop/Talha Anjum, Umair - Downers At Dusk.mp3'
         }
         // Add more songs if needed
     ];
@@ -112,35 +126,35 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         }
     });
 
-    app.post('/verify-otp', async (req, res) => {
-        const { otp } = req.body;
-        const userData = otpStorage[otp];
-        console.log("User data is ", userData)
-        if (!userData) {
-            const error = "Invalid OTP";
-            return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
-        }
+    // app.post('/verify-otp', async (req, res) => {
+    //     const { otp } = req.body;
+    //     const userData = otpStorage[otp];
+    //     console.log("User data is ", userData)
+    //     if (!userData) {
+    //         const error = "Invalid OTP";
+    //         return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
+    //     }
 
-        try {
-            const saltRounds = 10;
-            const hash = await bcrypt.hash(userData.password, saltRounds);
+    //     try {
+    //         const saltRounds = 10;
+    //         const hash = await bcrypt.hash(userData.password, saltRounds);
 
-            const newUser = new User({
-                fullName: userData.fullName,
-                email: userData.email,
-                phoneNumber: userData.phoneNumber,
-                password: hash
-            });
-            console.log("Iam before save")
-            console.log("user data before saving is : ", newUser)
-            await newUser.save();
+    //         const newUser = new User({
+    //             fullName: userData.fullName,
+    //             email: userData.email,
+    //             phoneNumber: userData.phoneNumber,
+    //             password: hash
+    //         });
+    //         console.log("Iam before save")
+    //         console.log("user data before saving is : ", newUser)
+    //         await newUser.save();
 
-            res.redirect('/login');
-        } catch (error) {
-            console.error('Error saving user data:', error);
-            res.status(500).send('Error saving user data');
-        }
-    });
+    //         res.redirect('/login');
+    //     } catch (error) {
+    //         console.error('Error saving user data:', error);
+    //         res.status(500).send('Error saving user data');
+    //     }
+    // });
 
 
 
