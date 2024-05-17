@@ -217,6 +217,140 @@
 
 
 
+// document.addEventListener('DOMContentLoaded', function () {
+//     const playButtons = document.querySelectorAll('.playbutton');
+//     const pauseButtons = document.querySelectorAll('.pausebutton');
+//     const backwardButtons = document.querySelectorAll('.backward');
+//     const forwardButtons = document.querySelectorAll('.forward');
+//     const audioPlayer = document.getElementById('audio-player');
+
+//     let songs = Array.from(document.querySelectorAll('.song-container')).map(container => ({
+//         id: container.getAttribute('data-songid'),
+//         index: parseInt(container.getAttribute('data-index'))
+//     }));
+
+//     let currentIndex = -1;
+
+//     const playSong = async (index) => {
+//         const song = songs[index];
+//         if (!song) {
+//             console.error('Song not found');
+//             return;
+//         }
+
+//         const response = await fetch(`/play-song/${song.id}`);
+//         if (response.ok) {
+//             const blob = await response.blob();
+//             const url = URL.createObjectURL(blob);
+//             audioPlayer.src = url;
+//             audioPlayer.play();
+//             currentIndex = index;
+//             updateButtonDisplay();
+//         } else {
+//             console.error('Failed to fetch the song');
+//         }
+//     };
+
+//     const updateButtonDisplay = () => {
+//         playButtons.forEach(button => button.style.display = 'inline');
+//         pauseButtons.forEach(button => button.style.display = 'none');
+//         if (currentIndex !== -1) {
+//             document.querySelector(`.playbutton[data-index="${currentIndex}"]`).style.display = 'none';
+//             document.querySelector(`.pausebutton[data-index="${currentIndex}"]`).style.display = 'inline';
+//         }
+//     };
+
+//     playButtons.forEach(button => {
+//         button.addEventListener('click', function () {
+//             const index = parseInt(button.getAttribute('data-index'));
+//             if (currentIndex === index) {
+//                 // If the same song is already playing, pause it
+//                 if (!audioPlayer.paused) {
+//                     audioPlayer.pause();
+
+//                     updateButtonDisplay();
+//                 } else {
+//                     // If the song is paused, resume it
+//                     audioPlayer.play();
+//                     updateButtonDisplay();
+//                 }
+//             } else {
+//                 // Play the new song
+//                 playSong(index);
+//             }
+//         });
+//     });
+
+//     pauseButtons.forEach(button => {
+//         button.addEventListener('click', function () {
+//             audioPlayer.pause();
+//             updateButtonDisplay();
+//         });
+//     });
+
+//     forwardButtons.forEach(button => {
+//         button.addEventListener('click', function () {
+//             let index = parseInt(button.getAttribute('data-index'));
+//             index = (index + 1) % songs.length;
+//             playSong(index);
+//         });
+//     });
+
+//     backwardButtons.forEach(button => {
+//         button.addEventListener('click', function () {
+//             let index = parseInt(button.getAttribute('data-index'));
+//             index = (index - 1 + songs.length) % songs.length;
+//             playSong(index);
+//         });
+//     });
+
+//     audioPlayer.addEventListener('ended', function () {
+//         let nextIndex = (currentIndex + 1) % songs.length;
+//         playSong(nextIndex);
+//     });
+// });
+
+
+// document.addEventListener('DOMContentLoaded', () => {
+//     const searchButton = document.getElementById('search-button');
+//     const searchInput = document.getElementById('search-input');
+//     const searchResults = document.getElementById('search-results');
+
+//     searchButton.addEventListener('click', async () => {
+//         try {
+//             const searchQuery = searchInput.value.trim();
+//             if (searchQuery === '') {
+//                 return; // Do nothing if the search query is empty
+//             }
+
+//             // Send a request to the server to search for the song
+//             const response = await fetch(`/search-song?query=${encodeURIComponent(searchQuery)}`);
+//             if (!response.ok) {
+//                 throw new Error('Failed to search for the song');
+//             }
+
+//             // Parse the JSON response
+//             const songs = await response.json();
+
+//             // Clear previous search results
+//             searchResults.innerHTML = '';
+
+//             // Display the search results
+//             songs.forEach(song => {
+//                 const songItem = document.createElement('div');
+//                 songItem.classList.add('song-item');
+//                 songItem.textContent = song.songname; // Customize this as needed
+//                 searchResults.appendChild(songItem);
+//             });
+//         } catch (error) {
+//             console.error('Error searching for song:', error);
+//             // Optionally display an error message to the user
+//         }
+//     });
+// });
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const playButtons = document.querySelectorAll('.playbutton');
     const pauseButtons = document.querySelectorAll('.pausebutton');
@@ -254,7 +388,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const updateButtonDisplay = () => {
         playButtons.forEach(button => button.style.display = 'inline');
         pauseButtons.forEach(button => button.style.display = 'none');
-        if (currentIndex !== -1) {
+        if (currentIndex !== -1 && !audioPlayer.paused) {
             document.querySelector(`.playbutton[data-index="${currentIndex}"]`).style.display = 'none';
             document.querySelector(`.pausebutton[data-index="${currentIndex}"]`).style.display = 'inline';
         }
@@ -264,17 +398,14 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', function () {
             const index = parseInt(button.getAttribute('data-index'));
             if (currentIndex === index) {
-                // If the same song is already playing, pause it
                 if (!audioPlayer.paused) {
                     audioPlayer.pause();
                     updateButtonDisplay();
                 } else {
-                    // If the song is paused, resume it
                     audioPlayer.play();
                     updateButtonDisplay();
                 }
             } else {
-                // Play the new song
                 playSong(index);
             }
         });
@@ -307,44 +438,12 @@ document.addEventListener('DOMContentLoaded', function () {
         let nextIndex = (currentIndex + 1) % songs.length;
         playSong(nextIndex);
     });
-});
 
+    audioPlayer.addEventListener('pause', function () {
+        updateButtonDisplay();
+    });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const searchButton = document.getElementById('search-button');
-    const searchInput = document.getElementById('search-input');
-    const searchResults = document.getElementById('search-results');
-
-    searchButton.addEventListener('click', async () => {
-        try {
-            const searchQuery = searchInput.value.trim();
-            if (searchQuery === '') {
-                return; // Do nothing if the search query is empty
-            }
-
-            // Send a request to the server to search for the song
-            const response = await fetch(`/search-song?query=${encodeURIComponent(searchQuery)}`);
-            if (!response.ok) {
-                throw new Error('Failed to search for the song');
-            }
-
-            // Parse the JSON response
-            const songs = await response.json();
-
-            // Clear previous search results
-            searchResults.innerHTML = '';
-
-            // Display the search results
-            songs.forEach(song => {
-                const songItem = document.createElement('div');
-                songItem.classList.add('song-item');
-                songItem.textContent = song.songname; // Customize this as needed
-                searchResults.appendChild(songItem);
-            });
-        } catch (error) {
-            console.error('Error searching for song:', error);
-            // Optionally display an error message to the user
-        }
+    audioPlayer.addEventListener('play', function () {
+        updateButtonDisplay();
     });
 });
-

@@ -34,7 +34,7 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songfilepath: path.join(__dirname, './assets/songs/Numb.mp3')
         },
         {
-            songname: 'Sang Rahiyo',
+            songname: 'SangRahiyo',
             songcategory: 'Category 2',
             songduration: '4:20',
             songartist: 'Artist 2',
@@ -46,7 +46,35 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songduration: '4:25',
             songartist: 'Artist 2',
             songfilepath: path.join(__dirname, './assets/songs/SadiGali.mp3')
-        }
+        },
+        {
+            songname: 'Amplifier',
+            songcategory: 'Category 2',
+            songduration: '4:25',
+            songartist: 'Artist 2',
+            songfilepath: path.join(__dirname, './assets/songs/Amplifier.mp3')
+        },
+        {
+            songname: 'DontMind',
+            songcategory: 'Category 2',
+            songduration: '4:25',
+            songartist: 'Artist 2',
+            songfilepath: path.join(__dirname, './assets/songs/DontMind.mp3')
+        },
+        {
+            songname: 'Felony',
+            songcategory: 'Category 2',
+            songduration: '4:25',
+            songartist: 'Artist 2',
+            songfilepath: path.join(__dirname, './assets/songs/Felony.mp3')
+        },
+        {
+            songname: 'Nasha',
+            songcategory: 'Category 2',
+            songduration: '4:25',
+            songartist: 'Artist 2',
+            songfilepath: path.join(__dirname, './assets/songs/Nasha.mp3')
+        },
         // Add more songs if needed
     ];
 
@@ -127,31 +155,7 @@ async function getSongsFromDatabase() {
         throw error;
     }
 }
-// app.get('/song/:id', async (req, res) => {
-//     const songId = req.params.id;
-//     try {
-//         const song = await SongCollection.findById(songId);
-//         if (!song) {
-//             return res.status(404).send('Song not found');
-//         }
 
-//         // Assuming you are using GridFS for storing song files
-//         const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-//             bucketName: 'songs' // This should match the name of your GridFS bucket
-//         });
-
-//         const downloadStream = bucket.openDownloadStream(song._id);
-
-//         downloadStream.on('error', () => {
-//             res.sendStatus(404);
-//         });
-
-//         downloadStream.pipe(res);
-//     } catch (error) {
-//         console.error('Error fetching the song:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 app.set('view engine', 'ejs')
 
@@ -201,35 +205,6 @@ function isAuthenticated(req, res, next) {
         res.redirect('/login');
     }
 }
-
-// app.get('/songs', async (req, res) => {
-//     try {
-//         const songs = await getSongsFromDatabase();
-//         console.log(songs); // Log fetched songs to the console
-//         res.json(songs);
-//     } catch (error) {
-//         console.error('Error fetching songs:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-
-// async function getSongsFromDatabase() {
-//     try {
-//         const songs = await gfs.find().toArray();
-//         const formattedSongs = songs.map(song => ({
-//             filename: song.filename,
-//             duration: song.metadata.duration,
-//             id: song._id
-//         }));
-//         console.log(formattedSongs); // Log formatted songs to the console
-//         return formattedSongs;
-//     } catch (error) {
-//         console.error('Error fetching songs from database:', error);
-//         return [];
-//     }
-// }
-
 
 
 
