@@ -112,38 +112,6 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         }
     });
 
-    app.post('/verify-otp', async (req, res) => {
-        const { otp } = req.body;
-        const userData = otpStorage[otp];
-        console.log("User data is ", userData)
-        if (!userData) {
-            const error = "Invalid OTP";
-            return res.redirect(`/verify-otp?error=${encodeURIComponent(error)}`);
-        }
-
-        try {
-            const saltRounds = 10;
-            const hash = await bcrypt.hash(userData.password, saltRounds);
-
-            const newUser = new User({
-                fullName: userData.fullName,
-                email: userData.email,
-                phoneNumber: userData.phoneNumber,
-                password: hash
-            });
-            console.log("Iam before save")
-            console.log("user data before saving is : ", newUser)
-            await newUser.save();
-
-            res.redirect('/login');
-        } catch (error) {
-            console.error('Error saving user data:', error);
-            res.status(500).send('Error saving user data');
-        }
-    });
-
-
-
     // Start the server
     app.listen(3000, () => {
         console.log('Server is running on port 3000');
@@ -166,7 +134,31 @@ async function getSongsFromDatabase() {
         throw error;
     }
 }
+app.get('/song/:id', async (req, res) => {
+    const songId = req.params.id;
+    try {
+        const song = await SongCollection.findById(songId);
+        if (!song) {
+            return res.status(404).send('Song not found');
+        }
 
+        // Assuming you are using GridFS for storing song files
+        const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+            bucketName: 'songs' // This should match the name of your GridFS bucket
+        });
+
+        const downloadStream = bucket.openDownloadStream(song._id);
+
+        downloadStream.on('error', () => {
+            res.sendStatus(404);
+        });
+
+        downloadStream.pipe(res);
+    } catch (error) {
+        console.error('Error fetching the song:', error);
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 app.set('view engine', 'ejs')
 
@@ -196,6 +188,8 @@ app.get('/home', isAuthenticated, async (req, res) => {
 
     try {
         const songs = await getSongsFromDatabase();
+        // console.log(songs)
+        // const songsString = JSON.stringify(songs);
         res.render('home', { title: 'Home', username: req.session.user.fullName, songs });
     } catch (error) {
         console.error('Error rendering home page:', error);

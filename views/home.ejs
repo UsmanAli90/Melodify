@@ -10,15 +10,6 @@
 </head>
 
 <body>
-    <!-- partial:index.partial.html -->
-    <!-- PRESS THE MENU BUTTON TO TRIGGER ANIMATION -->
-    <!-- PRESS PLAY BUTTON TO LISTEN THE DEMO SONG -->
-
-    <!-- As seen on: "https://dribbble.com/shots/2144866-Day-5-Music-Player-Rebound/" -->
-
-    <!-- THANK YOU! -->
-
-
     <article class="screen">
         <input type="checkbox" value="None" id="magicButton" name="check" />
         <label class="main" for="magicButton"></label>
@@ -43,157 +34,47 @@
 
         <div class="bodyPlayer"></div>
 
-        <% songs.forEach(song=> { %>
+        <div class="shadow"></div>
+
+        <div class="bar"></div>
+
+        <div class="info">
+            <h4>Sang Rahiyo</h4>
+            <!-- <h3>twenty one pilots - Blurryface</h3> -->
+        </div>
+
+
+
+        <% songs.forEach(function(song) { %>
             <div>
-                <h3>
-                    <%= song.filename %>
-                </h3>
-                <!-- When the play button is clicked, call the playSong function with the song filename -->
-                <button onclick="playSong('<%= song.filename %>')">Play</button>
-            </div>
-            <% }); %>
-                <!-- <table class="list">
-            <tr class="song">
-                <td class="nr">
-                    <h5>1<h5>
-                </td>
-                <td class="title">
-                    <h6>Heavydirtysoul<h6>
-                </td>
-                <td class="length">
-                    <h5>3:54<h5>
-                </td>
-                <td><input type="checkbox" id="heart" /><label class="zmr" for="heart"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>2<h5>
-                </td>
-                <td class="title">
-                    <h6 style="color: #ff564c;">StressedOut<h6>
-                </td>
-                <td class="length">
-                    <h5>3:22<h5>
-                </td>
-                <td><input type="checkbox" id="heart1" checked /><label class="zmr" for="heart1"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>3<h5>
-                </td>
-                <td class="title">
-                    <h6>Ride<h6>
-                </td>
-                <td class="length">
-                    <h5>3:34<h5>
-                </td>
-                <td><input type="checkbox" id="heart2" /><label class="zmr" for="heart2"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>4<h5>
-                </td>
-                <td class="title">
-                    <h6>Fairy Local<h6>
-                </td>
-                <td class="length">
-                    <h5>3:27<h5>
-                </td>
-                <td><input type="checkbox" id="heart3" checked /><label class="zmr" for="heart3"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>5<h5>
-                </td>
-                <td class="title">
-                    <h6>Tear in My Heart<h6>
-                </td>
-                <td class="length">
-                    <h5>3:08<h5>
-                </td>
-                <td><input type="checkbox" id="heart4" /><label class="zmr" for="heart4"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>6<h5>
-                </td>
-                <td class="title">
-                    <h6>Lane Boy<h6>
-                </td>
-                <td class="length">
-                    <h5>4:13<h5>
-                </td>
-                <td><input type="checkbox" id="heart5" /><label class="zmr" for="heart5"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>7<h5>
-                </td>
-                <td class="title">
-                    <h6>The Judge<h6>
-                </td>
-                <td class="length">
-                    <h5>4:57<h5>
-                </td>
-                <td><input type="checkbox" id="heart6" /><label class="zmr" for="heart6"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>8<h5>
-                </td>
-                <td class="title">
-                    <h6>Doubt<h6>
-                </td>
-                <td class="length">
-                    <h5>3:11<h5>
-                </td>
-                <td><input type="checkbox" id="heart7" /><label class="zmr" for="heart7"></label></td>
-            </tr>
-
-            <tr class="song">
-                <td class="nr">
-                    <h5>9<h5>
-                </td>
-                <td class="title">
-                    <h6>Polarize<h6>
-                </td>
-                <td class="length">
-                    <h5>3:46<h5>
-                </td>
-                <td><input type="checkbox" id="heart8" /><label class="zmr" for="heart8"></label></td>
-            </tr>
-        </table> -->
 
 
-                <div class="shadow"></div>
-
-                <div class="bar"></div>
-
-                <div class="info">
-                    <h4>Sang Rahiyo</h4>
-                    <!-- <h3>twenty one pilots - Blurryface</h3> -->
-                </div>
-
-
-                <audio id="audio" controls>
-                    <source src="/songs/song1.mp3">
-                    <!-- Your browser does not support the audio element. -->
-                </audio>
+                <p>
+                    <%= song.songname %>
+                </p>
+                <p>Category: <%= song.songcategory %>
+                </p>
+                <p>Duration: <%= song.songduration %>
+                </p>
+                <p>Artist: <%= song.songartist %>
+                </p>
 
 
                 <table class="player">
                     <td><input type="checkbox" id="backward" /><label class="backward" for="backward"></label></td>
-                    <td><input type="checkbox" id="play" title="Play" onclick="togglePlayPause()" /><label class="play"
-                            for="play"></label></td>
+                    <td><input type="checkbox" id="play" title="Play" /></label><i class="fa-solid fa-play"
+                            id="playbutton11" data-songid="<%= song._id %>"></i><label class="play" for="play"></i><i
+                                class="fa-solid fa-pause" id="pausebutton11"></i>
+                    </td>
                     <td><input type="checkbox" id="forward" /><label class="forward" for="forward"></label></td>
                 </table>
+            </div>
+            <% }) %>
+
+
+
+
+                <audio id="audio-player" controls style="display:none;"></audio>
 
                 <table class="footer">
                     <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
@@ -209,8 +90,8 @@
 
     </article>
     <!-- partial -->
-    <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-    <script src="/script.js"> </script>
+    <!-- <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script> -->
+    <script src="./script.js"> </script>
 
 </body>
 

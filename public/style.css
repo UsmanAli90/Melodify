@@ -15,7 +15,16 @@ body {
 }
 
 
+#playbutton11 {
+  cursor: pointer;
+  font-size: 24px;
+}
 
+#pausebutton11 {
+  display: none;
+  cursor: pointer;
+  font-size: 24px;
+}
 @keyframes harlem {
   0% {
     transform: scale(1);
@@ -298,6 +307,7 @@ label.main:before {
   top: 23px;
   left: 23px;
   font-family: FontAwesome;
+  /* Three lines on side */
   content: '\f0c9';
   color: #959595;
   font-size: 16px;
@@ -317,7 +327,7 @@ label.main:hover:before {
 }
 
 .coverImage {
-  background: url('https://angstyteenwatchingtoomuchtv.files.wordpress.com/2015/07/tumblr_nlhsir3adc1sk2qobo1_12801.gif');
+  /* background: url('https://angstyteenwatchingtoomuchtv.files.wordpress.com/2015/07/tumblr_nlhsir3adc1sk2qobo1_12801.gif'); */
   background-repeat: no-repeat;
   background-size: cover;
   width: 366px;
@@ -521,6 +531,7 @@ label.main:hover:before {
 
 label.zmr:before {
   font-family: FontAwesome;
+
   content: "\f08a";
   color: #777;
   font-size: 15px;
@@ -531,6 +542,7 @@ label.zmr:before {
 }
 
 td > #heart:checked ~ label.zmr:before {
+
   content: "\f004";
   color: #ff564c;
   transition: all 0.15s linear;
@@ -648,18 +660,20 @@ td > #heart8:checked ~ label.zmr:before {
 }
 
 .backward:before {
+  /* Previous button */
   content: "\f04a";
   cursor: pointer;
   transition: all 0.15s linear;
 }
 
-.play:before {
+/* .play:before {
   content: "\f04b";
   cursor: pointer;
   transition: all 0.15s linear;
-}
+} */
 
 .forward:before {
+  /* Backward button */
   content: "\f04e";
   cursor: pointer;
   transition: all 0.15s linear;
@@ -680,10 +694,10 @@ td > #heart8:checked ~ label.zmr:before {
   transition: all 0.15s linear;
 }
 
-td > #play:checked ~ label.play:before {
+/* td > #play:checked ~ label.play:before {
   content: "\f04c";
   transition: all 0.15s linear;
-}
+} */
 
 .screen > #magicButton:checked ~ .player {
   bottom: 4px;
@@ -719,24 +733,28 @@ td > #play:checked ~ label.play:before {
 }
 
 .love:before {
+  /* Love icon */
   content: "\f08a";
   cursor: pointer;
   transition: all 0.15s linear;
 }
 
 .shuffle:before {
+  /* Shufflr icon */
   content: "\f074";
   cursor: pointer;
   transition: all 0.15s linear;
 }
 
 .repeat:before {
+  /* Repeat icon */
   content: "\f01e";
   cursor: pointer;
   transition: all 0.15s linear;
 }
 
 .options:before {
+  /* OPtions Icon */
   content: "\f141";
   cursor: pointer;
   transition: all 0.15s linear;
@@ -763,6 +781,7 @@ td > #play:checked ~ label.play:before {
 }
 
 td > #love:checked ~ label.love:before {
+  
   content: "\f004";
   color: #ff564c;
   transition: all 0.15s linear;

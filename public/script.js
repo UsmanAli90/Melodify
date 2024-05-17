@@ -110,3 +110,54 @@
 //       })
 //       .catch(error => console.error('Error playing song:', error));
 // }
+
+
+
+console.log("HELOLO")
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const playButtons = document.querySelectorAll('[id^="playbutton11"]');
+    const audioPlayer = document.getElementById('audio-player');
+
+    playButtons.forEach(playButton => {
+        playButton.addEventListener('click', async function () {
+            const songId = playButton.getAttribute('data-songid');
+            console.log("SONG ID IS: ", songId);
+
+            if (!songId) {
+                console.error('No song ID found');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/song/${songId}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch the song');
+                }
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+
+                audioPlayer.src = url;
+                audioPlayer.play();
+
+                playButton.style.display = 'none';
+                const pauseButton = document.getElementById(`pausebutton11${songId}`);
+                pauseButton.style.display = 'inline';
+            } catch (error) {
+                console.error('Error fetching or playing the song:', error);
+            }
+        });
+    });
+
+    const pauseButtons = document.querySelectorAll('[id^="pausebutton11"]');
+    pauseButtons.forEach(pauseButton => {
+        pauseButton.addEventListener('click', function () {
+            audioPlayer.pause();
+            const songId = pauseButton.getAttribute('data-songid');
+            const playButton = document.getElementById(`playbutton11${songId}`);
+            playButton.style.display = 'inline';
+            pauseButton.style.display = 'none';
+        });
+    });
+});
