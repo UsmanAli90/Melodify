@@ -208,6 +208,15 @@ app.get('/signup', (req, res) => {
 app.get('/search', (req, res) => {
     res.render('search', { title: 'Search' });
 });
+app.get('/adminsignup', (req, res) => {
+    res.render('adminsignup', { title: 'Admin' });
+})
+app.get('/adminpage', isAuthenticatedadmin, (req, res) => {
+    res.render('adminpage', { title: 'Admin' });
+})
+app.get('/addsongform', isAuthenticatedadmin, (req, res) => {
+    res.render('addsongform', { title: 'Add Song' });
+})
 
 app.get('/home', isAuthenticated, async (req, res) => {
 
@@ -229,6 +238,15 @@ function isAuthenticated(req, res, next) {
     } else {
 
         res.redirect('/login');
+    }
+}
+function isAuthenticatedadmin(req, res, next) {
+    if (req.session.user) {
+
+        next();
+    } else {
+
+        res.redirect('/adminsignup');
     }
 }
 
@@ -354,6 +372,7 @@ app.post('/verify-otp', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
+
     const { email, password } = req.body;
     console.log("hey Iam before userdata1")
     const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
@@ -383,6 +402,63 @@ app.post('/login', async (req, res) => {
         req.session.user = userData; // You can store the entire user data in the session
         console.log(req.session.user)
         res.redirect('/home');
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+app.post('/add-song', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/adminsignup'); // Redirect to admin login if not logged in
+    }
+
+    const { songname, songcategory, songduration, songartist, songfilepath } = req.body;
+
+    try {
+        const newSong = new SongCollection({
+            songname,
+            songcategory,
+            songduration,
+            songartist,
+            songfilepath
+        });
+
+        await newSong.save();
+        res.redirect('/adminpage'); // Redirect back to admin page after saving the song
+    } catch (error) {
+        console.error('Error adding song:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/admin', async (req, res) => {
+    const { email, password } = req.body;
+    const emailRegex = /^[^\s@]+@(gmail|hotmail|yahoo)\.com$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    if (!password) {
+        return res.status(400).json({ error: 'Password field is required' });
+    }
+
+    try {
+        const userData = await User.findOne({ email: email });
+        console.log("ADMIN USER DATA", userData)
+        if (!userData) {
+            return res.status(404).json({ error: 'You are not Admin :(' });
+        }
+
+        // const isPasswordValid = await bcrypt.compare(password, userData.password);
+        // if (!isPasswordValid) {
+        //     return res.status(401).json({ error: 'Incorrect password' });
+        // }
+
+        // Create session
+        req.session.user = userData; // You can store the entire user data in the session
+        res.redirect('/adminpage');
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal server error' });

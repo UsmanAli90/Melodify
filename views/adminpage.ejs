@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<%- include('./partials/head.ejs')%>
+
+    <body>
+        <%- include('./partials/nav.ejs') %>
+
+            <div class="container">
+                <h1>Welcome <span>Admin</span> </h1>
+                <p>
+                    Explore curated playlists and diverse genres
+                    with ease. Immerse yourself in a world of captivating melodies.</p>
+                <div class="buttons">
+                    <button id="signupBtn"><a href="/addsongform">Add Song</button></a>
+                    <button id="signupBtn"><a href="/signup">Delete Song</button></a>
+                </div>
+
+            </div>
+
+            <%- include('./partials/footer.ejs')%>
+                <script src="script.js"></script>
+    </body>
+
+</html>
