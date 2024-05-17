@@ -359,6 +359,9 @@ label.main:hover:before {
   position: relative;
 }
 
+.search-icon i{
+  color: white;
+}
 .search .search-icon {
   position: absolute;
   top: 10px;

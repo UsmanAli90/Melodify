@@ -7,40 +7,26 @@
       rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
     />
+
     <link rel="stylesheet" href="./style.css" />
   </head>
 
   <body>
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Music Search</title>
-        <!-- Add any necessary CSS -->
-        <link rel="stylesheet" href="styles.css" />
-      </head>
-      <body>
-        <article class="screen">
-          <!-- Search input and button -->
-          <div class="search-container">
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Search songs..."
-            />
-            <button id="search-button">Search</button>
-          </div>
+    <%- include('./partials/nav.ejs') %>
+    <article class="screen" style="background-color: antiquewhite">
+      <!-- Search input and button -->
+      <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search songs..." />
+        <button id="search-button">Search</button>
+      </div>
 
-          <!-- Container to display songs -->
-          <div id="song-container">
-            <!-- Songs will be dynamically added here -->
-          </div>
-        </article>
+      <!-- Container to display songs -->
+      <div id="song-container">
+        <!-- Songs will be dynamically added here -->
+      </div>
+    </article>
 
-        <!-- Add any necessary scripts -->
-        <script src="script.js"></script>
-      </body>
-    </html>
+    <!-- Add any necessary scripts -->
+    <script src="script.js"></script>
   </body>
 </html>
