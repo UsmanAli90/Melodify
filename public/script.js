@@ -113,7 +113,6 @@
 
 
 
-console.log("HELOLO")
 
 
 // document.addEventListener('DOMContentLoaded', function () {
@@ -209,3 +208,43 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const searchButton = document.getElementById('search-button');
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+
+    searchButton.addEventListener('click', async () => {
+        try {
+            const searchQuery = searchInput.value.trim();
+            if (searchQuery === '') {
+                return; // Do nothing if the search query is empty
+            }
+
+            // Send a request to the server to search for the song
+            const response = await fetch(`/search-song?query=${encodeURIComponent(searchQuery)}`);
+            if (!response.ok) {
+                throw new Error('Failed to search for the song');
+            }
+
+            // Parse the JSON response
+            const songs = await response.json();
+
+            // Clear previous search results
+            searchResults.innerHTML = '';
+
+            // Display the search results
+            songs.forEach(song => {
+                const songItem = document.createElement('div');
+                songItem.classList.add('song-item');
+                songItem.textContent = song.songname; // Customize this as needed
+                searchResults.appendChild(songItem);
+            });
+        } catch (error) {
+            console.error('Error searching for song:', error);
+            // Optionally display an error message to the user
+        }
+    });
+});
+

@@ -20,6 +20,11 @@ body {
   font-size: 24px;
 }
 
+.dingdong{
+  cursor: pointer;
+}
+
+
 .pausebutton {
   display: none;
   cursor: pointer;
@@ -353,35 +358,32 @@ label.main:hover:before {
   position: relative;
 }
 
-.search:before {
+.search .search-icon {
   position: absolute;
   top: 10px;
   right: 53px;
-  font-family: FontAwesome;
-  /* Search Icon  */
-  content: '\f002';  
   color: #959595;
   font-size: 16px;
   line-height: 16px;
   cursor: pointer;
+  font-family: FontAwesome;
   z-index: 10;
   transition: all 0.3s ease-in;
+  text-decoration: none; /* Ensures no underline on the link */
+  width: 12px;
+  height: 16px;
 }
 
-.menu-icon {
-  position: absolute;
-  top: 23px;
-  right: 20px; /* Adjust the position as needed */
-  /* Add styling for the menu icon */
+.search .search-icon i {
+  color: #959595;
+  transition: all 0.3s ease-in;
 }
 
 .search .profile-icon {
   position: absolute;
   top: 10px;
-  right: 20px; /* Adjust the position as needed */
+  right: 20px;
   font-family: FontAwesome;
-  /* Profile Icon  */
-  content: '\f007';  
   color: #959595;
   font-size: 16px;
   line-height: 16px;
@@ -397,7 +399,7 @@ label.main:hover:before {
   right: 0;
   background-color: #f9f9f9;
   min-width: 120px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 10;
 }
 
@@ -415,6 +417,48 @@ label.main:hover:before {
 .search .dropdown-content a:hover {
   background-color: #f1f1f1;
 }
+
+
+
+.search-container {
+  margin-bottom: 20px;
+}
+
+#search-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+#search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#search-button:hover {
+  background-color: #0056b3;
+}
+
+#search-results {
+  margin-top: 20px;
+}
+
+.container {
+  max-width: 100%;
+  padding: 20px;
+  color: #ffffff;
+}
+
+
 
 .bodyPlayer {
   position: absolute;
