@@ -2,11 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Music Player</title>
-    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>
-    <link rel="stylesheet" href="./style.css">
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
@@ -16,9 +15,9 @@
 
         <div class="coverImage"></div>
         <div class="search">
-            <div class="search-icon">
+            <a href="/search" class="search-icon">
                 <i class="fa-solid fa-magnifying-glass"></i>
-            </div>
+            </a>
             <div class="profile-icon">
                 <i class="fa-solid fa-user"></i>
                 <div class="profile-icon-inner"></div>
@@ -172,22 +171,27 @@
         <!-- <audio id="audio-player" controls style="display:none;"></audio> -->
 
         <table class="footer">
-            <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
-            <td><input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label></td>
-            <td><input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label></td>
-            <td><input type="checkbox" id="options" /><label class="options" for="options"></label></td>
+            <td>
+                <input type="checkbox" id="love" checked /><label class="love" for="love"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="options" /><label class="options" for="options"></label>
+            </td>
         </table>
 
         <div class="current">
             <!-- <h2>STRESSED OUT</h2> -->
         </div>
-
-
     </article>
     <!-- partial -->
     <!-- <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script> -->
-    <script src="./script.js"> </script>
-
+    <script src="./script.js"></script>
 </body>
 
 </html>
