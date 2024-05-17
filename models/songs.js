@@ -3,7 +3,6 @@ const { type } = require('os')
 const Schema = mongoose.Schema
 
 
-//Schemas define structure of our model/Databse 
 const SongSchema = new Schema({
     songname: {
         type: String,
@@ -35,5 +34,5 @@ const SongSchema = new Schema({
     // }
 }, { timestamps: true })
 
-const SongCollection = mongoose.model('Songs', SongSchema)
-module.exports = SongCollection
+const SongCollection = mongoose.model('Songs', SongSchema);
+module.exports = SongCollection;
