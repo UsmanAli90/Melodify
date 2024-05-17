@@ -2,11 +2,10 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>Music Player</title>
-    <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css'>
-    <link rel="stylesheet" href="./style.css">
-
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
@@ -19,13 +18,12 @@
             <div class="search-icon">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </div>
+            <div class="search-input-container"></div>
             <div class="profile-icon">
                 <i class="fa-solid fa-user"></i>
                 <div class="profile-icon-inner"></div>
                 <div class="dropdown-content">
-                    <a href="/profile">
-                        <%= username %>
-                    </a>
+                    <a href="/profile">Username</a>
                     <a href="/settings">Settings</a>
                     <a href="/logout">Logout</a>
                 </div>
@@ -77,18 +75,31 @@
                 <audio id="audio-player" controls style="display:none;"></audio>
 
                 <table class="footer">
-                    <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
-                    <td><input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label></td>
-                    <td><input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label></td>
-                    <td><input type="checkbox" id="options" /><label class="options" for="options"></label></td>
+                    <tr>
+                        <td>
+                            <input type="checkbox" id="love<%= i %>" checked /><label class="love"
+                                for="love<%= i %>"></label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="shuffle<%= i %>" /><label class="shuffle"
+                                for="shuffle<%= i %>"></label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="repeat<%= i %>" checked /><label class="repeat"
+                                for="repeat<%= i %>"></label>
+                        </td>
+                        <td>
+                            <input type="checkbox" id="options<%= i %>" /><label class="options"
+                                for="options<%= i %>"></label>
+                        </td>
+                    </tr>
                 </table>
 
-                <div class="current">
-                    <!-- <h2>STRESSED OUT</h2> -->
-                </div>
-
-
+                <div class="current"></div>
+                <% } %>
+                    </div>
     </article>
+
     <!-- partial -->
     <!-- <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script> -->
     <script src="./script.js"> </script>
