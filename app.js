@@ -10,6 +10,8 @@ const fs = require('fs');
 const util = require('util');
 const hashAsync = util.promisify(bcrypt.hash);
 const SongCollection = require('./models/songs')
+const Playlist = require('./models/playlist')
+const path = require('path');
 
 
 const app = express()
@@ -39,90 +41,95 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songduration: '4:20',
             songartist: 'Artist 2',
             filepath: './assets/songs/song1.mp3'
+        },
+        {
+            songname: 'Amplifier',
+            songcategory: 'Pop',
+            songduration: '3:52',
+            songartist: 'Imran Khan',
+            filepath: './assets/songs/pop/Imran Khan - Amplifier.mp3'
+        },
+        {
+            songname: 'FELONY (feat. Talhah Yunus, Calm & Faris Shafi)',
+            songcategory: 'Pop',
+            songduration: '3:54',
+            songartist: 'Umair',
+            filepath: './assets/songs/pop/Umair - FELONY (feat. Talhah Yunus, Calm & Faris Shafi).mp3'
+        },
+        {
+            songname: 'Talwiinder, Vision - Nasha',
+            songcategory: 'Pop',
+            songduration: '3:06',
+            songartist: 'Talwinder',
+            filepath: './assets/songs/pop/Talwiinder, Vision - Nasha.mp3'
+        },
+        {
+            songname: 'Dont Mind',
+            songcategory: 'Pop',
+            songduration: '3:14',
+            songartist: 'Artist 2',
+            filepath: './assets/songs/pop/Talhah Yunus, Talha Anjum, Young Stunners, Rap Demon - Dont Mind.mp3'
         }
+
         // Add more songs if needed
     ];
 
-    // Function to check if a song already exists in the database
     async function songExists(songname) {
         return await SongCollection.exists({ songname });
     }
 
-    // Function to upload a file to GridFS along with metadata
-    async function uploadFileToGridFS(song) {
-        // Check if the song already exists
-        if (await songExists(song.songname)) {
-            console.log(`Song '${song.songname}' already exists in the database. Skipping upload.`);
-            return;
-        }
 
-        const readStream = fs.createReadStream(song.filepath);
-
-        // Set metadata for the file
-        const metadata = {
-            songname: song.songname,
-            songcategory: song.songcategory,
-            songduration: song.songduration,
-            songartist: song.songartist
-        };
-
-        // Open an upload stream
-        const uploadStream = gfs.openUploadStream(song.songname, { metadata });
-
-        // Pipe the read stream to the upload stream
-        readStream.pipe(uploadStream);
-
-        // Return a promise that resolves once the upload is complete
+    // Function to check if a song already exists in the database
+    const uploadFileToGridFS = (filePath) => {
         return new Promise((resolve, reject) => {
-            uploadStream.on('finish', async () => {
-                // Save song metadata to the database
-                const newSong = new SongCollection(metadata);
-                await newSong.save();
-                resolve();
-            });
-            uploadStream.on('error', reject);
-        });
-    }
-
-    // Upload all songs
-    try {
-        await Promise.all(songs.map(uploadFileToGridFS));
-        console.log('All songs uploaded successfully');
-    } catch (error) {
-        console.error('Error uploading songs:', error);
-    }
-
-    app.get('/play-song/:songname', async (req, res) => {
-        try {
-            const songname = req.params.songname;
-
-            // Fetch the song from the database
-            const song = await gfs.find({ filename: songname }).toArray();
-
-            if (!song || song.length === 0) {
-                return res.status(404).json({ error: 'Song not found' });
+            if (!filePath) {
+                return reject(new Error('File path is undefined'));
             }
 
-            // Stream the song data back to the client
-            const readStream = gfs.openDownloadStreamByName(songname);
-            readStream.pipe(res);
+            const filename = path.basename(filePath);
+            const uploadStream = gfs.openUploadStream(filename);
+            fs.createReadStream(filePath).pipe(uploadStream)
+                .on('error', (error) => {
+                    reject(error);
+                })
+                .on('finish', () => {
+                    resolve(uploadStream.id);
+                });
+        });
+    };
+
+    // Iterate over each song, check for duplicates, upload it to GridFS, and save its metadata in the Songs collection
+    for (const song of songs) {
+        try {
+            const exists = await songExists(song.songname);
+            if (exists) {
+                console.log(`Song already exists: ${song.songname}`);
+                continue; // Skip this song if it already exists
+            }
+
+            if (!fs.existsSync(song.filepath)) {
+                throw new Error(`File does not exist at path: ${song.filepath}`);
+            }
+
+            const fileId = await uploadFileToGridFS(song.filepath);
+            const newSong = new SongCollection({
+                songname: song.songname,
+                songcategory: song.songcategory,
+                songduration: song.songduration,
+                songartist: song.songartist,
+                songpath: fileId
+            });
+            await newSong.save();
+            console.log(`Uploaded and saved song: ${song.songname}`);
         } catch (error) {
-            console.error('Error playing song:', error);
-            res.status(500).json({ error: 'Internal server error' });
+            console.error(`Failed to upload and save song: ${song.songname}`, error);
         }
-    });
+    }
 
-    // Start the server
-    app.listen(3000, () => {
-        console.log('Server is running on port 3000');
-    });
-})
-    .catch((err) => {
-        console.log("DB can't be connected ", err);
-    });
-
-
-
+    console.log('All songs have been processed.');
+}).catch((error) => {
+    console.error('Failed to connect to MongoDB', error);
+});
 
 
 async function getSongsFromDatabase() {

@@ -3,7 +3,6 @@ const { type } = require('os')
 const Schema = mongoose.Schema
 
 
-//Schemas define structure of our model/Databse 
 const SongSchema = new Schema({
     songname: {
         type: String,
@@ -21,15 +20,11 @@ const SongSchema = new Schema({
         type: String,
         required: true
     },
-    songData: {
-        type: Buffer, // Use Buffer to store binary data
-        required: true
-    },
-    contentType: {
-        type: String, // Specify the content type of the song data
+    songpath: {
+        type: mongoose.Schema.Types.ObjectId, // Reference to GridFS file
         required: true
     }
-}, { timestamps: true })
+}, { timestamps: true });
 
-const SongCollection = mongoose.model('Songs', SongSchema)
-module.exports = SongCollection
+const SongCollection = mongoose.model('Songs', SongSchema);
+module.exports = SongCollection;
