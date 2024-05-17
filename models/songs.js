@@ -21,14 +21,18 @@ const SongSchema = new Schema({
         type: String,
         required: true
     },
-    songData: {
-        type: Buffer, // Use Buffer to store binary data
-        required: true
-    },
-    contentType: {
-        type: String, // Specify the content type of the song data
+    songfilepath: {
+        type: String,
         required: true
     }
+    // songData: {
+    //     type: Buffer, // Use Buffer to store binary data
+    //     required: true
+    // },
+    // contentType: {
+    //     type: String, // Specify the content type of the song data
+    //     required: true
+    // }
 }, { timestamps: true })
 
 const SongCollection = mongoose.model('Songs', SongSchema)

@@ -10,6 +10,7 @@ const fs = require('fs');
 const util = require('util');
 const hashAsync = util.promisify(bcrypt.hash);
 const SongCollection = require('./models/songs')
+const path = require('path');
 
 
 const app = express()
@@ -31,14 +32,21 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songcategory: 'English',
             songduration: '3:45',
             songartist: 'Artist 1',
-            filepath: './assets/songs/Numb.mp3'
+            songfilepath: path.join(__dirname, './assets/songs/Numb.mp3')
         },
         {
             songname: 'Sang Rahiyo',
             songcategory: 'Category 2',
             songduration: '4:20',
             songartist: 'Artist 2',
-            filepath: './assets/songs/song1.mp3'
+            songfilepath: path.join(__dirname, './assets/songs/song1.mp3')
+        },
+        {
+            songname: 'Faasle',
+            songcategory: 'Category 2',
+            songduration: '4:25',
+            songartist: 'Artist 2',
+            songfilepath: path.join(__dirname, './assets/songs/song1.mp3')
         }
         // Add more songs if needed
     ];
@@ -48,64 +56,50 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         return await SongCollection.exists({ songname });
     }
 
-    // Function to upload a file to GridFS along with metadata
-    async function uploadFileToGridFS(song) {
+
+    async function uploadSongMetadata(song) {
         // Check if the song already exists
         if (await songExists(song.songname)) {
             console.log(`Song '${song.songname}' already exists in the database. Skipping upload.`);
             return;
         }
 
-        const readStream = fs.createReadStream(song.filepath);
-
-        // Set metadata for the file
-        const metadata = {
-            songname: song.songname,
-            songcategory: song.songcategory,
-            songduration: song.songduration,
-            songartist: song.songartist
-        };
-
-        // Open an upload stream
-        const uploadStream = gfs.openUploadStream(song.songname, { metadata });
-
-        // Pipe the read stream to the upload stream
-        readStream.pipe(uploadStream);
-
-        // Return a promise that resolves once the upload is complete
-        return new Promise((resolve, reject) => {
-            uploadStream.on('finish', async () => {
-                // Save song metadata to the database
-                const newSong = new SongCollection(metadata);
-                await newSong.save();
-                resolve();
-            });
-            uploadStream.on('error', reject);
-        });
+        // Save song metadata to the database
+        const newSong = new SongCollection(song);
+        await newSong.save();
+        console.log(`Song '${song.songname}' metadata uploaded successfully.`);
     }
+
+
 
     // Upload all songs
     try {
-        await Promise.all(songs.map(uploadFileToGridFS));
-        console.log('All songs uploaded successfully');
+        await Promise.all(songs.map(uploadSongMetadata));
+        console.log('All song metadata uploaded successfully');
     } catch (error) {
-        console.error('Error uploading songs:', error);
+        console.error('Error uploading song metadata:', error);
     }
-
-    app.get('/play-song/:songname', async (req, res) => {
+    console.log("BEFORE GET SONG REQUEST")
+    app.get('/play-song/:id', async (req, res) => {
+        console.log("ID ISS: ", id)
         try {
-            const songname = req.params.songname;
+            const songid = req.params.id;
 
-            // Fetch the song from the database
-            const song = await gfs.find({ filename: songname }).toArray();
+            // Fetch the song metadata from the database
+            const song = await SongCollection.findOne({ songid });
 
-            if (!song || song.length === 0) {
+            if (!song) {
                 return res.status(404).json({ error: 'Song not found' });
             }
 
-            // Stream the song data back to the client
-            const readStream = gfs.openDownloadStreamByName(songname);
-            readStream.pipe(res);
+            // Serve the song file
+            const songPath = path.join(__dirname, 'assets', 'songs', `${song.songname}.mp3`);
+            res.sendFile(songPath);
+            if (fs.existsSync(songPath)) {
+                res.sendFile(songPath);
+            } else {
+                res.status(404).json({ error: 'Song file not found' });
+            }
         } catch (error) {
             console.error('Error playing song:', error);
             res.status(500).json({ error: 'Internal server error' });
@@ -134,31 +128,31 @@ async function getSongsFromDatabase() {
         throw error;
     }
 }
-app.get('/song/:id', async (req, res) => {
-    const songId = req.params.id;
-    try {
-        const song = await SongCollection.findById(songId);
-        if (!song) {
-            return res.status(404).send('Song not found');
-        }
+// app.get('/song/:id', async (req, res) => {
+//     const songId = req.params.id;
+//     try {
+//         const song = await SongCollection.findById(songId);
+//         if (!song) {
+//             return res.status(404).send('Song not found');
+//         }
 
-        // Assuming you are using GridFS for storing song files
-        const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-            bucketName: 'songs' // This should match the name of your GridFS bucket
-        });
+//         // Assuming you are using GridFS for storing song files
+//         const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
+//             bucketName: 'songs' // This should match the name of your GridFS bucket
+//         });
 
-        const downloadStream = bucket.openDownloadStream(song._id);
+//         const downloadStream = bucket.openDownloadStream(song._id);
 
-        downloadStream.on('error', () => {
-            res.sendStatus(404);
-        });
+//         downloadStream.on('error', () => {
+//             res.sendStatus(404);
+//         });
 
-        downloadStream.pipe(res);
-    } catch (error) {
-        console.error('Error fetching the song:', error);
-        res.status(500).send('Internal Server Error');
-    }
-});
+//         downloadStream.pipe(res);
+//     } catch (error) {
+//         console.error('Error fetching the song:', error);
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
 
 app.set('view engine', 'ejs')
 

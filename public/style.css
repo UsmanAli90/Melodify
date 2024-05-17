@@ -15,12 +15,12 @@ body {
 }
 
 
-#playbutton11 {
+.playbutton {
   cursor: pointer;
   font-size: 24px;
 }
 
-#pausebutton11 {
+.pausebutton {
   display: none;
   cursor: pointer;
   font-size: 24px;
@@ -327,7 +327,7 @@ label.main:hover:before {
 }
 
 .coverImage {
-  /* background: url('https://angstyteenwatchingtoomuchtv.files.wordpress.com/2015/07/tumblr_nlhsir3adc1sk2qobo1_12801.gif'); */
+  background: url('https://angstyteenwatchingtoomuchtv.files.wordpress.com/2015/07/tumblr_nlhsir3adc1sk2qobo1_12801.gif');
   background-repeat: no-repeat;
   background-size: cover;
   width: 366px;
