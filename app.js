@@ -118,6 +118,32 @@ app.get('/play-song/:id', async (req, res) => {
     }
 });
 
+
+app.get('/search-song', async (req, res) => {
+    try {
+        const searchQuery = req.query.query;
+        const songs = await SongCollection.find({
+            $or: [
+                { songname: { $regex: searchQuery, $options: 'i' } },
+                { songartist: { $regex: searchQuery, $options: 'i' } },
+                { songcategory: { $regex: searchQuery, $options: 'i' } }
+            ]
+        });
+
+        // Check if any songs were found
+        if (songs.length === 0) {
+            return res.status(404).json({ error: 'No songs found' });
+        }
+        console.log(songs);
+
+        // Send the search results back to the client
+        res.json(songs);
+    } catch (error) {
+        console.error('Error searching for song:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 async function getSongsFromDatabase() {
     try {
         const songs = await SongCollection.find({});
@@ -127,31 +153,7 @@ async function getSongsFromDatabase() {
         throw error;
     }
 }
-// app.get('/song/:id', async (req, res) => {
-//     const songId = req.params.id;
-//     try {
-//         const song = await SongCollection.findById(songId);
-//         if (!song) {
-//             return res.status(404).send('Song not found');
-//         }
 
-//         // Assuming you are using GridFS for storing song files
-//         const bucket = new mongoose.mongo.GridFSBucket(mongoose.connection.db, {
-//             bucketName: 'songs' // This should match the name of your GridFS bucket
-//         });
-
-//         const downloadStream = bucket.openDownloadStream(song._id);
-
-//         downloadStream.on('error', () => {
-//             res.sendStatus(404);
-//         });
-
-//         downloadStream.pipe(res);
-//     } catch (error) {
-//         console.error('Error fetching the song:', error);
-//         res.status(500).send('Internal Server Error');
-//     }
-// });
 
 app.set('view engine', 'ejs')
 

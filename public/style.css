@@ -452,6 +452,31 @@ label.main:hover:before {
   margin-top: 20px;
 }
 
+/* CSS for the search results table */
+#search-results table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#song-container th, #song-container td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+#song-container th {
+  background-color: #f2f2f2;
+}
+
+#song-container tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+#song-container tr:hover {
+  background-color: #dddddd;
+}
+
+
 .container {
   max-width: 100%;
   padding: 20px;

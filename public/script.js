@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', () => {
     const searchButton = document.getElementById('search-button');
     const searchInput = document.getElementById('search-input');
-    const searchResults = document.getElementById('search-results');
+    const searchResults = document.getElementById('song-container');
 
     searchButton.addEventListener('click', async () => {
         try {
@@ -323,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Send a request to the server to search for the song
+            console.log(searchQuery);
             const response = await fetch(`/search-song?query=${encodeURIComponent(searchQuery)}`);
             if (!response.ok) {
                 throw new Error('Failed to search for the song');
@@ -332,15 +333,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const songs = await response.json();
 
             // Clear previous search results
+            // Clear previous search results
             searchResults.innerHTML = '';
 
-            // Display the search results
-            songs.forEach(song => {
-                const songItem = document.createElement('div');
-                songItem.classList.add('song-item');
-                songItem.textContent = song.songname; // Customize this as needed
-                searchResults.appendChild(songItem);
+            // Create table structure
+            const table = document.createElement('table');
+            const thead = document.createElement('thead');
+            const tbody = document.createElement('tbody');
+
+            // Create table header row
+            const headerRow = document.createElement('tr');
+            const headers = ['Name', 'Category', 'Duration', 'Artist'];
+            headers.forEach(headerText => {
+                const th = document.createElement('th');
+                th.textContent = headerText;
+                headerRow.appendChild(th);
             });
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+
+            // Populate table body with song information
+            songs.forEach(song => {
+                const row = document.createElement('tr');
+                const cells = ['songname', 'songcategory', 'songduration', 'songartist'];
+                cells.forEach(cellName => {
+                    const td = document.createElement('td');
+                    td.textContent = song[cellName];
+                    row.appendChild(td);
+                });
+                tbody.appendChild(row);
+            });
+
+            // Append table body to table
+            table.appendChild(tbody);
+
+            // Append table to search results container
+            searchResults.appendChild(table);
+
+
         } catch (error) {
             console.error('Error searching for song:', error);
             // Optionally display an error message to the user
