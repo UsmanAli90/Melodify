@@ -1,84 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8" />
     <title>Music Player</title>
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
-    />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="./style.css" />
-  </head>
+</head>
 
-  <body>
+<body>
     <article class="screen">
-      <input type="checkbox" value="None" id="magicButton" name="check" />
-      <label class="main" for="magicButton"></label>
+        <input type="checkbox" value="None" id="magicButton" name="check" />
+        <label class="main" for="magicButton"></label>
 
-      <div class="coverImage"></div>
-      <div class="search">
-        <a href="/search" class="search-icon">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </a>
-        <div class="profile-icon">
-          <i class="fa-solid fa-user"></i>
-          <div class="profile-icon-inner"></div>
-          <div class="dropdown-content">
-            <a href="/profile"><%= username %></a>
-            <a href="/settings">Settings</a>
-            <a href="/logout">Logout</a>
-          </div>
+        <div class="coverImage"></div>
+        <div class="search">
+            <a href="/search" class="search-icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </a>
+            <div class="profile-icon">
+                <i class="fa-solid fa-user"></i>
+                <div class="profile-icon-inner"></div>
+                <div class="dropdown-content">
+                    <a href="/profile">
+                        <%= username %>
+                    </a>
+                    <a href="/settings">Settings</a>
+                    <a href="/logout">Logout</a>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div class="bodyPlayer"></div>
+        <div class="bodyPlayer"></div>
 
-      <div class="shadow"></div>
+        <div class="shadow"></div>
 
-      <div class="bar"></div>
+        <div class="bar"></div>
 
-      <div class="info">
-        <!-- <h3>twenty one pilots - Blurryface</h3> -->
-      </div>
-      <!-- <h1>Audio Player</h1> -->
-      <div>
-        <% songs.forEach(song=> { %>
+        <div class="info">
+
+            <!-- <h3>twenty one pilots - Blurryface</h3> -->
+        </div>
+        <!-- <h1>Audio Player</h1> -->
         <div>
-          <h2><%= song.songname %></h2>
-          <p>Category: <%= song.songcategory %></p>
-          <p>Duration: <%= song.songduration %></p>
-          <p>Artist: <%= song.songartist %></p>
-          <div class="player">
-            <input type="checkbox" id="backward" /><label
-              class="backward"
-              for="backward"
-            ></label>
-            <input type="checkbox" id="play" title="Play" />
-            <label class="play" for="play">
-              <i
-                class="fa-solid fa-play playbutton"
-                data-songid="<%= song._id %>"
-                id="playbutton<%= song._id %>"
-              ></i>
-              <i
-                class="fa-solid fa-pause pausebutton"
-                data-songid="<%= song._id %>"
-                id="pausebutton<%= song._id %>"
-                style="display: none"
-              ></i>
-            </label>
-            <input type="checkbox" id="forward" /><label
-              class="forward"
-              for="forward"
-            ></label>
-          </div>
+            <% songs.forEach((song, index)=> { %>
+                <div class="song-container" data-index="<%= index %>" data-songid="<%= song._id %>">
+                    <h2>
+                        <%= song.songname %>
+                    </h2>
+                    <p>Category: <%= song.songcategory %>
+                    </p>
+                    <p>Duration: <%= song.songduration %>
+                    </p>
+                    <p>Artist: <%= song.songartist %>
+                    </p>
+                    <div class="player">
+                        <button class="backward" data-index="<%= index %>">Backward</button>
+                        <button class="playbutton" data-songid="<%= song._id %>" data-index="<%= index %>">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="pausebutton" data-songid="<%= song._id %>" data-index="<%= index %>"
+                            style="display: none;">
+                            <i class="fa-solid fa-pause"></i>
+                        </button>
+                        <button class="forward" data-index="<%= index %>">Forward</button>
+                    </div>
+                </div>
+                <% }) %>
         </div>
-        <% }) %>
-      </div>
+        <audio id="audio-player"></audio>
 
-      <audio id="audio-player" controls style="display: none"></audio>
+        <div>
+            <% songs.forEach((song, index)=> { %>
+                <div class="song-container" data-index="<%= index %>" data-songid="<%= song._id %>">
+                    <h2>
+                        <%= song.songname %>
+                    </h2>
+                    <p>Category: <%= song.songcategory %>
+                    </p>
+                    <p>Duration: <%= song.songduration %>
+                    </p>
+                    <p>Artist: <%= song.songartist %>
+                    </p>
+                    <div class="player">
+                        <input type="checkbox" id="backward" /><label class="backward" data-index="<%= index %>"
+                            for="backward"></label>
+                        <!-- <button class="backward" data-index="<%= index %>">Backward</button> -->
+                        <label class="play" for="play">
+                            <i class="fa-solid fa-play playbutton" data-songid="<%= song._id %>"
+                                data-index="<%= index %>"></i>
+                            <i class="fa-solid fa-pause pausebutton" data-songid="<%= song._id %>"
+                                data-index="<%= index %>" style="display: none;"></i>
+                        </label>
+                        <!-- <button class="playbutton" data-songid="<%= song._id %>" data-index="<%= index %>">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="pausebutton" data-songid="<%= song._id %>" data-index="<%= index %>"
+                            style="display: none;">
+                            <i class="fa-solid fa-pause"></i>
+                        </button> -->
+                        <!-- <button class="forward" data-index="<%= index %>">Forward</button> -->
+                        <input type="checkbox" id="forward" /><label class="forward" data-index="<%= index %>"
+                            for="forward"></label>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+        <audio id="audio-player"></audio>
 
-      <!-- <% songs.forEach(function(song) { %>
+        <!-- <audio id="audio-player"></audio> -->
+
+
+        <!-- <% songs.forEach(song=> { %>
+                <div>
+                    <h2>
+                        <%= song.songname %>
+                    </h2>
+                    <p>Category: <%= song.songcategory %>
+                    </p>
+                    <p>Duration: <%= song.songduration %>
+                    </p>
+                    <p>Artist: <%= song.songartist %>
+                    </p>
+                    <div class="player">
+                        <input type="checkbox" id="backward" /><label class="backward" for="backward"></label>
+                        <input type="checkbox" id="play" title="Play" />
+                        <label class="play" for="play">
+                            <i class="fa-solid fa-play playbutton" data-songid="<%= song._id %>"
+                                id="<%= song._id %>"></i>
+                            <i class="fa-solid fa-pause pausebutton" data-songid="<%= song._id %>"
+                                id="pausebutton<%= song._id %>" style="display: none;"></i>
+                        </label>
+                        <input type="checkbox" id="forward" /><label class="forward" for="forward"></label>
+                    </div>
+                </div>
+                <% }) %> -->
+
+
+        <!-- <audio id="audio-player" controls style="display: none;"></audio> -->
+
+        <!-- <% songs.forEach(function(song) { %>
             <div>
 
 
@@ -104,41 +165,33 @@
             </div>
             <% }) %> -->
 
-      <audio id="audio-player" controls style="display: none"></audio>
 
-      <table class="footer">
-        <td>
-          <input type="checkbox" id="love" checked /><label
-            class="love"
-            for="love"
-          ></label>
-        </td>
-        <td>
-          <input type="checkbox" id="shuffle" /><label
-            class="shuffle"
-            for="shuffle"
-          ></label>
-        </td>
-        <td>
-          <input type="checkbox" id="repeat" checked /><label
-            class="repeat"
-            for="repeat"
-          ></label>
-        </td>
-        <td>
-          <input type="checkbox" id="options" /><label
-            class="options"
-            for="options"
-          ></label>
-        </td>
-      </table>
 
-      <div class="current">
-        <!-- <h2>STRESSED OUT</h2> -->
-      </div>
+
+        <!-- <audio id="audio-player" controls style="display:none;"></audio> -->
+
+        <table class="footer">
+            <td>
+                <input type="checkbox" id="love" checked /><label class="love" for="love"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="shuffle" /><label class="shuffle" for="shuffle"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="repeat" checked /><label class="repeat" for="repeat"></label>
+            </td>
+            <td>
+                <input type="checkbox" id="options" /><label class="options" for="options"></label>
+            </td>
+        </table>
+
+        <div class="current">
+            <!-- <h2>STRESSED OUT</h2> -->
+        </div>
     </article>
     <!-- partial -->
     <!-- <script src='//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script> -->
     <script src="./script.js"></script>
-  </body>
+</body>
+
 </html>

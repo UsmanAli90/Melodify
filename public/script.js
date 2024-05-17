@@ -162,50 +162,150 @@
 // });
 
 
+//Play button Working
+
+
+// document.addEventListener('DOMContentLoaded', function () {
+//     const playButtons = document.querySelectorAll('.playbutton');
+//     const audioPlayer = document.getElementById('audio-player');
+
+//     playButtons.forEach(playButton => {
+//         playButton.addEventListener('click', async function () {
+//             const songId = playButton.getAttribute('data-songid');
+//             console.log("SONG ID IS: ", songId);
+
+//             if (!songId) {
+//                 console.error('No song ID found');
+//                 return;
+//             }
+
+//             try {
+//                 const response = await fetch(`/play-song/${songId}`);
+//                 if (!response.ok) {
+//                     throw new Error('Failed to fetch the song');
+//                 }
+//                 const blob = await response.blob();
+//                 const url = URL.createObjectURL(blob);
+
+//                 audioPlayer.src = url;
+//                 audioPlayer.play();
+
+//                 playButton.style.display = 'none';
+//                 const pauseButton = document.getElementById(`pausebutton${songId}`);
+//                 pauseButton.style.display = 'inline';
+//             } catch (error) {
+//                 console.error('Error fetching or playing the song:', error);
+//             }
+//         });
+//     });
+
+//     const pauseButtons = document.querySelectorAll('.pausebutton');
+//     pauseButtons.forEach(pauseButton => {
+//         pauseButton.addEventListener('click', function () {
+//             audioPlayer.pause();
+//             const songId = pauseButton.getAttribute('data-songid');
+//             const playButton = document.querySelector(`.playbutton[data-songid="${songId}"]`);
+//             playButton.style.display = 'inline';
+//             pauseButton.style.display = 'none';
+//         });
+//     });
+// });
+
+
+//Play button end
+
+
+
+
 document.addEventListener('DOMContentLoaded', function () {
     const playButtons = document.querySelectorAll('.playbutton');
+    const pauseButtons = document.querySelectorAll('.pausebutton');
+    const backwardButtons = document.querySelectorAll('.backward');
+    const forwardButtons = document.querySelectorAll('.forward');
     const audioPlayer = document.getElementById('audio-player');
 
-    playButtons.forEach(playButton => {
-        playButton.addEventListener('click', async function () {
-            const songId = playButton.getAttribute('data-songid');
-            console.log("SONG ID IS: ", songId);
+    let songs = Array.from(document.querySelectorAll('.song-container')).map(container => ({
+        id: container.getAttribute('data-songid'),
+        index: parseInt(container.getAttribute('data-index'))
+    }));
 
-            if (!songId) {
-                console.error('No song ID found');
-                return;
-            }
+    let currentIndex = -1;
 
-            try {
-                const response = await fetch(`/play-song/${songId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch the song');
+    const playSong = async (index) => {
+        const song = songs[index];
+        if (!song) {
+            console.error('Song not found');
+            return;
+        }
+
+        const response = await fetch(`/play-song/${song.id}`);
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            audioPlayer.src = url;
+            audioPlayer.play();
+            currentIndex = index;
+            updateButtonDisplay();
+        } else {
+            console.error('Failed to fetch the song');
+        }
+    };
+
+    const updateButtonDisplay = () => {
+        playButtons.forEach(button => button.style.display = 'inline');
+        pauseButtons.forEach(button => button.style.display = 'none');
+        if (currentIndex !== -1) {
+            document.querySelector(`.playbutton[data-index="${currentIndex}"]`).style.display = 'none';
+            document.querySelector(`.pausebutton[data-index="${currentIndex}"]`).style.display = 'inline';
+        }
+    };
+
+    playButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const index = parseInt(button.getAttribute('data-index'));
+            if (currentIndex === index) {
+                // If the same song is already playing, pause it
+                if (!audioPlayer.paused) {
+                    audioPlayer.pause();
+                    updateButtonDisplay();
+                } else {
+                    // If the song is paused, resume it
+                    audioPlayer.play();
+                    updateButtonDisplay();
                 }
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-
-                audioPlayer.src = url;
-                audioPlayer.play();
-                audioPlayer.style.display = 'block';
-
-                playButton.style.display = 'none';
-                const pauseButton = document.getElementById(`pausebutton${songId}`);
-                pauseButton.style.display = 'inline';
-            } catch (error) {
-                console.error('Error fetching or playing the song:', error);
+            } else {
+                // Play the new song
+                playSong(index);
             }
         });
     });
 
-    const pauseButtons = document.querySelectorAll('.pausebutton');
-    pauseButtons.forEach(pauseButton => {
-        pauseButton.addEventListener('click', function () {
+    pauseButtons.forEach(button => {
+        button.addEventListener('click', function () {
             audioPlayer.pause();
-            const songId = pauseButton.getAttribute('data-songid');
-            const playButton = document.getElementById(`playbutton${songId}`);
-            playButton.style.display = 'inline';
-            pauseButton.style.display = 'none';
+            updateButtonDisplay();
         });
+    });
+
+    forwardButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            let index = parseInt(button.getAttribute('data-index'));
+            index = (index + 1) % songs.length;
+            playSong(index);
+        });
+    });
+
+    backwardButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            let index = parseInt(button.getAttribute('data-index'));
+            index = (index - 1 + songs.length) % songs.length;
+            playSong(index);
+        });
+    });
+
+    audioPlayer.addEventListener('ended', function () {
+        let nextIndex = (currentIndex + 1) % songs.length;
+        playSong(nextIndex);
     });
 });
 
