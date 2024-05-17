@@ -23,7 +23,6 @@ app.use(express.json())
 mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
     console.log('Connected to MongoDB');
     const db = mongoose.connection.db;
-    const gfs = new GridFSBucket(db);
 
     // Define an array of songs with their metadata
     const songs = [
@@ -39,14 +38,14 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songcategory: 'Category 2',
             songduration: '4:20',
             songartist: 'Artist 2',
-            songfilepath: path.join(__dirname, './assets/songs/song1.mp3')
+            songfilepath: path.join(__dirname, './assets/songs/SangRahiyo.mp3')
         },
         {
-            songname: 'Faasle',
+            songname: 'SadiGali',
             songcategory: 'Category 2',
             songduration: '4:25',
             songartist: 'Artist 2',
-            songfilepath: path.join(__dirname, './assets/songs/song1.mp3')
+            songfilepath: path.join(__dirname, './assets/songs/SadiGali.mp3')
         }
         // Add more songs if needed
     ];
@@ -80,31 +79,6 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         console.error('Error uploading song metadata:', error);
     }
     console.log("BEFORE GET SONG REQUEST")
-    app.get('/play-song/:id', async (req, res) => {
-        console.log("ID ISS: ", id)
-        try {
-            const songid = req.params.id;
-
-            // Fetch the song metadata from the database
-            const song = await SongCollection.findOne({ songid });
-
-            if (!song) {
-                return res.status(404).json({ error: 'Song not found' });
-            }
-
-            // Serve the song file
-            const songPath = path.join(__dirname, 'assets', 'songs', `${song.songname}.mp3`);
-            res.sendFile(songPath);
-            if (fs.existsSync(songPath)) {
-                res.sendFile(songPath);
-            } else {
-                res.status(404).json({ error: 'Song file not found' });
-            }
-        } catch (error) {
-            console.error('Error playing song:', error);
-            res.status(500).json({ error: 'Internal server error' });
-        }
-    });
 
     // Start the server
     app.listen(3000, () => {
@@ -118,6 +92,31 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
 
 
 
+app.get('/play-song/:id', async (req, res) => {
+    const songid = req.params.id;
+    console.log("ID IS: ", songid);
+
+    try {
+        // Fetch the song metadata from the database
+        const song = await SongCollection.findById(songid);
+
+        if (!song) {
+            return res.status(404).json({ error: 'Song not found' });
+        }
+
+        // Serve the song file
+        const songPath = path.join(__dirname, 'assets', 'songs', `${song.songname}.mp3`);
+
+        if (fs.existsSync(songPath)) {
+            res.sendFile(songPath);
+        } else {
+            res.status(404).json({ error: 'Song file not found' });
+        }
+    } catch (error) {
+        console.error('Error playing song:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 async function getSongsFromDatabase() {
     try {

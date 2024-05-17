@@ -44,7 +44,75 @@
         </div>
         <!-- <h1>Audio Player</h1> -->
         <div>
-            <% songs.forEach(song=> { %>
+            <% songs.forEach((song, index)=> { %>
+                <div class="song-container" data-index="<%= index %>" data-songid="<%= song._id %>">
+                    <h2>
+                        <%= song.songname %>
+                    </h2>
+                    <p>Category: <%= song.songcategory %>
+                    </p>
+                    <p>Duration: <%= song.songduration %>
+                    </p>
+                    <p>Artist: <%= song.songartist %>
+                    </p>
+                    <div class="player">
+                        <button class="backward" data-index="<%= index %>">Backward</button>
+                        <button class="playbutton" data-songid="<%= song._id %>" data-index="<%= index %>">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="pausebutton" data-songid="<%= song._id %>" data-index="<%= index %>"
+                            style="display: none;">
+                            <i class="fa-solid fa-pause"></i>
+                        </button>
+                        <button class="forward" data-index="<%= index %>">Forward</button>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+        <audio id="audio-player"></audio>
+
+        <div>
+            <% songs.forEach((song, index)=> { %>
+                <div class="song-container" data-index="<%= index %>" data-songid="<%= song._id %>">
+                    <h2>
+                        <%= song.songname %>
+                    </h2>
+                    <p>Category: <%= song.songcategory %>
+                    </p>
+                    <p>Duration: <%= song.songduration %>
+                    </p>
+                    <p>Artist: <%= song.songartist %>
+                    </p>
+                    <div class="player">
+                        <input type="checkbox" id="backward" /><label class="backward" data-index="<%= index %>"
+                            for="backward"></label>
+                        <!-- <button class="backward" data-index="<%= index %>">Backward</button> -->
+                        <label class="play" for="play">
+                            <i class="fa-solid fa-play playbutton" data-songid="<%= song._id %>"
+                                data-index="<%= index %>"></i>
+                            <i class="fa-solid fa-pause pausebutton" data-songid="<%= song._id %>"
+                                data-index="<%= index %>" style="display: none;"></i>
+                        </label>
+                        <!-- <button class="playbutton" data-songid="<%= song._id %>" data-index="<%= index %>">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button class="pausebutton" data-songid="<%= song._id %>" data-index="<%= index %>"
+                            style="display: none;">
+                            <i class="fa-solid fa-pause"></i>
+                        </button> -->
+                        <!-- <button class="forward" data-index="<%= index %>">Forward</button> -->
+                        <input type="checkbox" id="forward" /><label class="forward" data-index="<%= index %>"
+                            for="forward"></label>
+                    </div>
+                </div>
+                <% }) %>
+        </div>
+        <audio id="audio-player"></audio>
+
+        <!-- <audio id="audio-player"></audio> -->
+
+
+        <!-- <% songs.forEach(song=> { %>
                 <div>
                     <h2>
                         <%= song.songname %>
@@ -60,17 +128,17 @@
                         <input type="checkbox" id="play" title="Play" />
                         <label class="play" for="play">
                             <i class="fa-solid fa-play playbutton" data-songid="<%= song._id %>"
-                                id="playbutton<%= song._id %>"></i>
+                                id="<%= song._id %>"></i>
                             <i class="fa-solid fa-pause pausebutton" data-songid="<%= song._id %>"
                                 id="pausebutton<%= song._id %>" style="display: none;"></i>
                         </label>
                         <input type="checkbox" id="forward" /><label class="forward" for="forward"></label>
                     </div>
                 </div>
-                <% }) %>
-        </div>
+                <% }) %> -->
 
-        <audio id="audio-player" controls style="display: none;"></audio>
+
+        <!-- <audio id="audio-player" controls style="display: none;"></audio> -->
 
         <!-- <% songs.forEach(function(song) { %>
             <div>
@@ -101,7 +169,7 @@
 
 
 
-        <audio id="audio-player" controls style="display:none;"></audio>
+        <!-- <audio id="audio-player" controls style="display:none;"></audio> -->
 
         <table class="footer">
             <td><input type="checkbox" id="love" checked /><label class="love" for="love"></label></td>
