@@ -108,6 +108,36 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
         }
     });
 
+    app.get('/search-song/:query', async (req, res) => {
+        try {
+            const searchQuery = req.query.query;
+            const songs = await SongCollection.find({
+                $or: [
+                    { songname: { $regex: searchQuery, $options: 'i' } },
+                    { songartist: { $regex: searchQuery, $options: 'i' } },
+                    { songcategory: { $regex: searchQuery, $options: 'i' } }
+                ]
+            });
+
+            if (!song) {
+                return res.status(404).json({ error: 'Song not found' });
+            }
+
+
+            const songPath = path.join(__dirname, 'assets', 'songs', `${song.songname}.mp3`);
+            res.sendFile(songPath);
+            if (fs.existsSync(songPath)) {
+                res.sendFile(songPath);
+            } else {
+                res.status(404).json({ error: 'Song file not found' });
+            }
+            res.json(songs);
+        } catch (error) {
+            console.error('Error searching for song:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+
 
     // Start the server
     app.listen(3000, () => {
@@ -167,35 +197,6 @@ app.use(session({
     saveUninitialized: false
 }));
 
-
-app.get('/search-song/:query', async (req, res) => {
-    try {
-        const searchQuery = req.query.query;
-        const songs = await SongCollection.find({
-            $or: [
-                { songname: { $regex: searchQuery, $options: 'i' } },
-                { songartist: { $regex: searchQuery, $options: 'i' } },
-                { songcategory: { $regex: searchQuery, $options: 'i' } }
-            ]
-        });
-
-        if (!song) {
-            return res.status(404).json({ error: 'Song not found' });
-        }
-
-        const songPath = path.join(__dirname, 'assets', 'songs', `${song.songname}.mp3`);
-        res.sendFile(songPath);
-        if (fs.existsSync(songPath)) {
-            res.sendFile(songPath);
-        } else {
-            res.status(404).json({ error: 'Song file not found' });
-        }
-        res.json(songs);
-    } catch (error) {
-        console.error('Error searching for song:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
 
 
 app.get('/', (req, res) => {
