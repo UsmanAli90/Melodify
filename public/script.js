@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const updateButtonDisplay = () => {
         playButtons.forEach(button => button.style.display = 'inline');
         pauseButtons.forEach(button => button.style.display = 'none');
-        if (currentIndex !== -1) {
+        if (currentIndex !== -1 && !audioPlayer.paused) {
             document.querySelector(`.playbutton[data-index="${currentIndex}"]`).style.display = 'none';
             document.querySelector(`.pausebutton[data-index="${currentIndex}"]`).style.display = 'inline';
         }
