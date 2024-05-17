@@ -39,20 +39,6 @@ mongoose.connect('mongodb://localhost:27017/Test').then(async () => {
             songduration: '4:20',
             songartist: 'Artist 2',
             filepath: './assets/songs/song1.mp3'
-        },
-        {
-            songname: 'Amplifier',
-            songcategory: 'Pop',
-            songduration: '3:52',
-            songartist: 'Imran Khan',
-            filepath: './assets/songs/pop/Imran Khan - Amplifier.mp3'
-        },
-        {
-            songname: 'Downers At Dusk',
-            songcategory: 'Pop',
-            songduration: '4:10',
-            songartist: 'Talha Anjum',
-            filepath: './assets/songs/pop/Talha Anjum, Umair - Downers At Dusk.mp3'
         }
         // Add more songs if needed
     ];
